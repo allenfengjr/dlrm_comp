@@ -6,6 +6,8 @@
 import builtins
 import os
 import sys
+from typing import List
+
 
 import torch
 import torch.distributed as dist
@@ -35,7 +37,7 @@ a2a_impl = os.environ.get("DLRM_ALLTOALL_IMPL", "")
 
 myreq = None
 
-
+# iter on a environment varibale to one Int
 def env2int(env_list, default=-1):
     for e in env_list:
         val = int(os.environ.get(e, -1))
@@ -46,6 +48,7 @@ def env2int(env_list, default=-1):
 
 def get_my_slice(n):
     k, m = divmod(n, my_size)
+    # why my_rank is always global in every call
     return slice(
         my_rank * k + min(my_rank, m), (my_rank + 1) * k + min(my_rank + 1, m), 1
     )
@@ -127,7 +130,6 @@ def init_distributed(rank=-1, local_rank=-1, size=-1, use_gpu=False, backend="")
                     "If this run hangs, try exporting rank 0's hostname as MASTER_ADDR"
                 )
             os.environ["MASTER_ADDR"] = "127.0.0.1"
-
     if size > 1:
         if local_rank == -1:
             my_local_rank = env2int(
@@ -162,6 +164,7 @@ def init_distributed(rank=-1, local_rank=-1, size=-1, use_gpu=False, backend="")
         my_size = dist.get_world_size()
         if my_rank == 0:
             print("Running on %d ranks using %s backend" % (my_size, backend))
+        # is dist support all_to_all_single? does it need environment varibale?
         if hasattr(dist, "all_to_all_single"):
             try:
                 t = torch.zeros([4])
@@ -198,7 +201,7 @@ class Request(object):
         self.WaitFunction = All2All_Scatter_Wait
 
     def wait(self):
-        ret = self.WaitFunction.apply(*self.tensor)
+        ret = self.WaitFunction.apply(self.tensor) # remove *
         self.req = None
         self.tensor = None
         return ret
@@ -486,6 +489,7 @@ class All2All_Wait(Function):
             return (grad_output,)
 
 
+        
 class AllGather(Function):
     @staticmethod
     def forward(ctx, input, global_lengths, dim=0):
@@ -537,9 +541,107 @@ class AllGather(Function):
 class All2AllInfo(object):
     pass
 
+class All2All_v_Req(Function):
+    @staticmethod
+    def forward(ctx, a2a_info, input):
+        global myreq
+        with record_function("DLRM alltoall_req_fwd_single"):
+            # batch_split_length and table_split_length should be lists: []
+            batch_split_lengths = a2a_info.global_batch_partition_slices
+            table_split_lengths = a2a_info.global_table_wise_parition_slices
+            # Set the receive buffer
+            device = torch.device('cuda', my_local_rank)
+            if len(input.shape) > 1:
+                emb_len = input.shape[1]
+                print("embedding len is, ", emb_len)
+                output = torch.cuda.ByteTensor(int(sum(table_split_lengths)*input.element_size()*emb_len)).view(input.dtype).reshape(-1,emb_len)
+            else:
+                output = torch.cuda.ByteTensor(sum(table_split_lengths)*input.element_size()).view(input.dtype)
+            '''
+            print_all("IS CUDA: ",input.is_cuda)
+            print_all("IS SPARSE: ",input.is_sparse)
+            print_all("output split,", table_split_lengths)
+            print_all("input split,", batch_split_lengths)
+            print_all("input total shape,", input.shape)
+            print_all("output total shape,", output.shape)
+            '''
+            # all_to_all_single
+            print_all("rank, ", my_rank, "shape[input|output], ", input.shape, output.shape)
+            print_all("rank, ", my_rank, "type[input|output], ", input.dtype, output.dtype)
+            print_all("rank, ", my_rank, "input split, ", batch_split_lengths)
+            print_all("rank, ", my_rank, "output split, ", table_split_lengths)
+            barrier()
+            req = dist.all_to_all_single(
+                output,
+                input,
+                output_split_sizes = table_split_lengths,
+                input_split_sizes = batch_split_lengths,
+                async_op=True
+            )
+            myreq.req = req
+            myreq.tensor = output
+            a2a_info.batch_split_lengths = batch_split_lengths
+            a2a_info.table_split_lengths = table_split_lengths
+            myreq.a2a_info = a2a_info
+            ctx.a2a_info = a2a_info
+            return output
+
+    @staticmethod
+    def backward(ctx, *grad_output):
+        global myreq
+        with record_function("DLRM alltoall_req_bwd_single"):
+            a2a_info = ctx.a2a_info
+            myreq.req.wait()
+            myreq.req = None
+            grad_input = myreq.tensor
+            grad_inputs = grad_input.view([a2a_info.batch_size, -1]).split(
+                a2a_info.emb_dim, dim=1
+            )
+            grad_inputs = [gin.contiguous() for gin in grad_inputs]
+            myreq.tensor = None
+            return (None, *grad_inputs)
+
+class All2All_v_Wait(Function):
+    @staticmethod
+    def forward(ctx, output):
+        global myreq
+        with record_function("DLRM alltoall_wait_fwd_single"):
+            a2a_info = myreq.a2a_info
+            ctx.a2a_info = a2a_info
+            myreq.req.wait()
+            myreq.req = None
+            myreq.tensor = None
+            d_type = output[0].dtype
+            #output = torch.tensor([t.item() for t in output], dtype=d_type)
+            #output = torch.cat(output)
+            #output = torch.stack(output).squeeze()
+            return output
+
+    @staticmethod
+    def backward(ctx, *grad_outputs):
+        global myreq
+        with record_function("DLRM alltoall_wait_bwd_single"):
+            a2a_info = ctx.a2a_info
+            grad_outputs = [gout.contiguous().view([-1]) for gout in grad_outputs]
+            grad_output = torch.cat(grad_outputs)
+            grad_input = grad_output.new_empty(
+                [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
+            )
+            req = dist.all_to_all_single(
+                grad_input,
+                grad_output,
+                a2a_info.batch_split_lengths,
+                a2a_info.table_split_lengths,
+                async_op=True,
+            )
+            myreq.req = req
+            myreq.tensor = grad_input
+            return (grad_output,)
+        
 
 def alltoall(inputs, per_rank_table_splits):
     global myreq
+    # `inputs` is a List of tensor
     batch_size, emb_dim = inputs[0].size()
     a2a_info = All2AllInfo()
     a2a_info.local_table_num = len(inputs)
@@ -557,7 +659,7 @@ def alltoall(inputs, per_rank_table_splits):
     )
 
     if a2a_impl == "" and alltoall_supported or a2a_impl == "alltoall":
-        # print("Using All2All_Req")
+        print("Using All2All_Req")
         output = All2All_Req.apply(a2a_info, *inputs)
         myreq.WaitFunction = All2All_Wait
     elif a2a_impl == "" or a2a_impl == "scatter":
@@ -575,6 +677,26 @@ def alltoall(inputs, per_rank_table_splits):
         )
     return myreq
 
+def alltoall_v(inputs, send_cnt, receive_cnt):
+    global myreq
+    '''
+    The previous function only support alltoall, and wrap too much
+    `per_rank_table_splits` is a list, elements are #table in each rank, but we do not use this in alltoall_v
+    `send_cnt`, `receive_cnt` are same as DDP defined
+    I do not use a tuple as input, I use a tensor as input.
+    It support 1D/2D tensor as input, which is enough for lossy compression approach
+    '''
+    a2a_info = All2AllInfo()
+    a2a_info.local_table_num = len(inputs)    
+    a2a_info.global_batch_partition_slices = send_cnt # input
+    a2a_info.global_table_wise_parition_slices = receive_cnt # output
+    if a2a_impl == "" and alltoall_supported or a2a_impl == "alltoall":
+        print("Using All2All_v_Req")
+        output = All2All_v_Req.apply(a2a_info, inputs) # I remove * , it used to be *inputs
+        myreq.WaitFunction = All2All_v_Wait
+    else:
+        print("Only alltoall supports now")
+    return myreq
 
 def all_gather(input, lengths, dim=0):
     if not lengths:
@@ -601,3 +723,6 @@ builtins.print = rank0_print
 # Allow printing from all rank with explicit print_all
 def print_all(*args, **kwargs):
     orig_print(*args, **kwargs)
+
+def multiply_list_by_number(nums: List[int], number: int) -> List[int]:
+    return [num * number for num in nums]
