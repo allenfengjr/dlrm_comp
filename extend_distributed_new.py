@@ -201,7 +201,7 @@ class Request(object):
         self.WaitFunction = All2All_Scatter_Wait
 
     def wait(self):
-        ret = self.WaitFunction.apply(self.tensor) # I change from *self.tensor to self.tensor
+        ret = self.WaitFunction.apply(self.tensor) # remove *
         self.req = None
         self.tensor = None
         return ret
@@ -543,38 +543,43 @@ class All2AllInfo(object):
 
 class All2All_v_Req(Function):
     @staticmethod
-    def forward(ctx, a2a_info, *inputs):
+    def forward(ctx, a2a_info, input):
         global myreq
         with record_function("DLRM alltoall_req_fwd_single"):
             # batch_split_length and table_split_length should be lists: []
-            input_cnt = a2a_info.global_batch_partition_slices
-            output_cnt = a2a_info.global_table_wise_parition_slices
-            input = inputs[0] # I assume there is only one tensor need to be sent
-            '''
-            Here is what I do not understand, is inputs always on the same CUDA device?
-            The print result shows there are many device, but all_to_all_single should use tensor on a same device
-            '''
+            batch_split_lengths = a2a_info.global_batch_partition_slices
+            table_split_lengths = a2a_info.global_table_wise_parition_slices
             # Set the receive buffer
             device = torch.device('cuda', my_local_rank)
-            output = torch.empty(sum(output_cnt),dtype=input.dtype).to(device)
+            if len(input.shape) > 1:
+                emb_len = input.shape[1]
+                print("embedding len is, ", emb_len)
+                output = torch.cuda.ByteTensor(int(sum(table_split_lengths)*input.element_size()*emb_len)).view(input.dtype).reshape(-1,emb_len)
+            else:
+                output = torch.cuda.ByteTensor(sum(table_split_lengths)*input.element_size()).view(input.dtype)
             # all_to_all_single
+            print_all("rank, ", my_rank, "shape[input|output], ", input.shape, output.shape)
+            print_all("rank, ", my_rank, "type[input|output], ", input.dtype, output.dtype)
+            print_all("rank, ", my_rank, "input split, ", batch_split_lengths)
+            print_all("rank, ", my_rank, "output split, ", table_split_lengths)
+            barrier()
             req = dist.all_to_all_single(
                 output,
                 input,
-                output_split_sizes = output_cnt,
-                input_split_sizes = input_cnt,
+                output_split_sizes = table_split_lengths,
+                input_split_sizes = batch_split_lengths,
                 async_op=True
             )
             myreq.req = req
             myreq.tensor = output
-            a2a_info.batch_split_lengths = input_cnt
-            a2a_info.table_split_lengths = output_cnt
+            a2a_info.batch_split_lengths = batch_split_lengths
+            a2a_info.table_split_lengths = table_split_lengths
             myreq.a2a_info = a2a_info
             ctx.a2a_info = a2a_info
             return output
 
     @staticmethod
-    def backward(ctx, *grad_output):
+    def backward(ctx, grad_output):
         global myreq
         with record_function("DLRM alltoall_req_bwd_single"):
             a2a_info = ctx.a2a_info
@@ -605,12 +610,13 @@ class All2All_v_Wait(Function):
             return output
 
     @staticmethod
-    def backward(ctx, *grad_outputs):
+    def backward(ctx, grad_output):
         global myreq
         with record_function("DLRM alltoall_wait_bwd_single"):
             a2a_info = ctx.a2a_info
-            grad_outputs = [gout.contiguous().view([-1]) for gout in grad_outputs]
-            grad_output = torch.cat(grad_outputs)
+            #grad_outputs = [gout.contiguous().view([-1]) for gout in grad_outputs]
+
+            #grad_output = torch.cat(grad_outputs)
             grad_input = grad_output.new_empty(
                 [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
             )
@@ -623,7 +629,7 @@ class All2All_v_Wait(Function):
             )
             myreq.req = req
             myreq.tensor = grad_input
-            return (grad_output,)
+            return grad_output
         
 
 def alltoall(inputs, per_rank_table_splits):
@@ -668,15 +674,10 @@ def alltoall_v(inputs, send_cnt, receive_cnt):
     global myreq
     '''
     The previous function only support alltoall, and wrap too much
-    `inputs` is a tensor
-    TODO
-    This inputs structure is not like list of tensor. 
-    Original:
-    [ tensor_0, tensor_1, tensor_2] tensors shapes are: (batch size * embedding length)
-    1,2  5,6
-    3,4  7,8
-    Compressed:
-    [ tensor_0, tensor_1, tensor_2] tensors shapes are (length of bytes), which are different
+    `per_rank_table_splits` is a list, elements are #table in each rank, but we do not use this in alltoall_v
+    `send_cnt`, `receive_cnt` are same as DDP defined
+    I do not use a tuple as input, I use a tensor as input.
+    It support 1D/2D tensor as input, which is enough for lossy compression approach
     '''
     a2a_info = All2AllInfo()
     a2a_info.local_table_num = len(inputs)    
@@ -685,7 +686,6 @@ def alltoall_v(inputs, send_cnt, receive_cnt):
     if a2a_impl == "" and alltoall_supported or a2a_impl == "alltoall":
         print("Using All2All_v_Req")
         output = All2All_v_Req.apply(a2a_info, inputs) # I remove * , it used to be *inputs
-        print("alltoall_v output is, ", output)
         myreq.WaitFunction = All2All_v_Wait
     else:
         print("Only alltoall supports now")
