@@ -778,7 +778,7 @@ class DLRM_Net(nn.Module):
             ly_devices.append(_.device)
         if args.enable_compress and not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
-            q_ly = [torch.ops.fbgemm.FloatToHFP8Quantized(_, 4, 1, _.max().items()) for _ in ly]
+            q_ly = [torch.ops.fbgemm.FloatToHFP8Quantized(_, 4, 1, _.max().item()) for _ in ly]
             dq_ly = [torch.ops.fbgemm.HFP8QuantizedToFloat(_, 4, 1) for _ in q_ly]
             #if iter == 0:
                 #print("Compression method: %s, Parameters: %s",args.compressor, r_tolerance)
