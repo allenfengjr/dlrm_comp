@@ -34,7 +34,7 @@ else
 fi
 #echo $dlrm_extra_option
 
-dlrm_pt_bin="python dlrm_s_pytorch.py"
+dlrm_pt_bin="python dlrm_s_with_quan.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
