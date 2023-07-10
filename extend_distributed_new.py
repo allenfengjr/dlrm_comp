@@ -614,9 +614,9 @@ class All2All_v_Wait(Function):
         global myreq
         with record_function("DLRM alltoall_wait_bwd_single"):
             a2a_info = ctx.a2a_info
-            #grad_outputs = [gout.contiguous().view([-1]) for gout in grad_outputs]
-
-            #grad_output = torch.cat(grad_outputs)
+            
+            # The most important part is to make sure how many we send back?
+            # The point is
             grad_input = grad_output.new_empty(
                 [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
             )
