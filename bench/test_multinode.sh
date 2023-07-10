@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=auto
+#SBATCH --job-name=kaggle
 #SBATCH -A r00114
 #SBATCH -p gpu
 #SBATCH --nodes=2
@@ -18,7 +18,7 @@ export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/open
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate dlrm
+conda activate new_dlrm
 
 # set environment varibales
 
