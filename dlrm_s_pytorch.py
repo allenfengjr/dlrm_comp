@@ -700,40 +700,6 @@ class DLRM_Net(nn.Module):
         '''
         # embeddings
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
-        if  args.enable_compress and iter%128==0:
-            ly_data = [_.detach().cpu() for _ in ly]
-            ly_data = torch.stack(ly_data).numpy()
-            #print(ly_data.size)
-            #print(ly_data.shape)
-            value_range = np.amax(ly_data) - np.amin(ly_data)
-            r_tolerance = 1e-3
-            a_tolerance = r_tolerance * value_range
-            #zfp_data_swo, zfp_ratio_swo = my_emb_comp.compress(compressor="ZFP_compressor",format="sample_wise_one",data=ly_data,tolerance=1e-2)
-            #zfp_data_two, zfp_ratio_two = my_emb_comp.compress(compressor="ZFP_compressor",format="table_wise_one",data=ly_data,tolerance=1e-2)
-            #zfp_data_tws, zfp_ratio_tws = my_emb_comp.compress(compressor="ZFP_compressor",format="table_wise_seperate",data=ly_data,tolerance=1e-2)
-
-            #my_emb_comp.recordRatio(name="ZFP_sample_wise_one",ratio=zfp_ratio_swo)
-            #my_emb_comp.recordRatio(name="ZFP_table_wise_one",ratio=zfp_ratio_two)
-            #my_emb_comp.recordRatio(name="ZFP_table_wise_seperate",ratio=zfp_ratio_tws)
-
-            #sz_data_swo, sz_ratio_swo = my_emb_comp.compress(compressor="SZ_compressor",format="sample_wise_one",data=ly_data,tolerance=1e-3)
-            #sz_data_two, sz_ratio_two = my_emb_comp.compress(compressor="SZ_compressor",format="table_wise_one",data=ly_data,tolerance=1e-3)
-            #sz_data_tws, sz_ratio_tws = my_emb_comp.compress(compressor="SZ_compressor",format="table_wise_seperate",data=ly_data,tolerance=1e-3)
-            sz_data_f, sz_ratio_f = my_emb_comp.compress(compressor="SZ_compressor",format="flatten",data=ly_data,tolerance=a_tolerance)
-
-            #my_emb_comp.recordRatio(name="SZ_sample_wise_one",ratio=sz_ratio_swo)
-            #my_emb_comp.recordRatio(name="SZ_table_wise_one",ratio=sz_ratio_two)
-            #my_emb_comp.recordRatio(name="SZ_table_wise_seperate",ratio=sz_ratio_tws)
-            my_emb_comp.recordRatio(name="SZ_flatten",ratio=sz_ratio_f)
-        if args.save_embedding and iter==0:
-            ly_data = [_.detach().cpu() for _ in ly]
-            ly_data = torch.stack(ly_data).numpy()
-            for i,d in enumerate(ly_data):
-                self.dump_data(d,"numpy",savepath,str("2D_table_"+str(i)+"_Epoch_"+str(epoch)))
-            self.dump_data(ly_data.flatten(),"numpy",savepath,"1D_"+"Epoch_"+str(epoch))
-            for i,d in enumerate(ly_data.transpose([1,0,2])):
-                if i < 4 :
-                    self.dump_data(d,"numpy",savepath,str("2D_sample_"+str(i)+"_Epoch_"+str(epoch)))
         # debug prints
         # print(ly)
         '''
