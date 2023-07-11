@@ -4,7 +4,8 @@
 #SBATCH -A r00114
 #SBATCH -p gpu
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=4
+#SBATCH --gpus-per-node=4
+#SBATCH --ntasks-per-node=1
 #SBATCH --time=24:00:00
 #SBATCH --output=bigred_%j.log 
 #SBATCH --mem=200G
