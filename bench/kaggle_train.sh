@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#SBATCH --job-name=auto
+#SBATCH --job-name=kaggle
+#SBATCH -A r00114
 #SBATCH -p gpu
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=4
