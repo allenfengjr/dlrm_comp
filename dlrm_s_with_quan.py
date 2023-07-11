@@ -804,7 +804,8 @@ class DLRM_Net(nn.Module):
             
             #my_emb_comp.recordRatio(name="ZFP_table_wise_seperate",ratio=compression_ratio)
 
-        # dump embedding vectors
+        # dump embedding 
+        '''
         if args.save_embedding and iter==0:
             ly_data = [_.detach().cpu() for _ in ly]
             ly_data = torch.stack(ly_data).numpy()
@@ -814,6 +815,7 @@ class DLRM_Net(nn.Module):
             for i,d in enumerate(ly_data.transpose([1,0,2])):
                 if i < 4 :
                     self.dump_data(d,"numpy",savepath,str("2D_sample_"+str(i)+"_Epoch_"+str(epoch)))
+        '''
         # debug prints
         # print(ly)
         '''
