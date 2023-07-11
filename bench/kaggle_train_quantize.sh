@@ -59,7 +59,7 @@ $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot="13-512-256-64-16" --a
 --test-freq=1024 \
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
---quantize-emb-with-bit=8
+--use-gpu \
 $dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"
