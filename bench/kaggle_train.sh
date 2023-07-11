@@ -19,7 +19,7 @@ module load cudatoolkit
 #echo $LD_LIBRARY_PATH
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate dlrm
+conda activate new_dlrm
 
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 #
