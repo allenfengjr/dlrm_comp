@@ -2,14 +2,14 @@ import os
 import matplotlib.pyplot as plt
 
 filename = {
-    "original":"/N/u/haofeng/BigRed200/dlrm/bigred_1616203.log", 
-    
-    "SZ5e-2":"/N/u/haofeng/BigRed200/dlrm/bigred_1617330.log",
-    "ZFP3e-1":"/N/u/haofeng/BigRed200/dlrm/bigred_1617344.log",
+    #"original":"/N/u/haofeng/BigRed200/dlrm/bigred_1616203.log", 
+    "quantize": "/N/u/haofeng/BigRed200/dlrm/bigred_1818494.log"
+    #"SZ5e-2":"/N/u/haofeng/BigRed200/dlrm/bigred_1617330.log",
+    #"ZFP3e-1":"/N/u/haofeng/BigRed200/dlrm/bigred_1617344.log",
     }
 results = {}  # dictionary to store results for each log file
 
-print(filename["original"])
+#print(filename["original"])
 for k,v in filename.items():
     print(k)
     f = open(filename[k],'r')
@@ -25,12 +25,15 @@ for k,v in filename.items():
             accuracy.append(float(words[2]))
         elif words[0] == "Compression" and words[1] == "ratio,":
             compression_ratio.append(float(words[2].rstrip()))
+    '''
     if k != "original":
         accuracy_delta = []
         for l in range(len(results["original"]["accuracy"])):
             accuracy_delta.append(results["original"]["accuracy"][l]-accuracy[l])
     else:
         accuracy_delta = []
+    '''
+    accuracy_delta = []
     results[k] = {"loss": loss, "accuracy": accuracy, "compression_ratio": compression_ratio,"accuracy_delta": accuracy_delta}
 
     print(loss)
