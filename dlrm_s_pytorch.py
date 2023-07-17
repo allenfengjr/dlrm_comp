@@ -469,8 +469,8 @@ class DLRM_Net(nn.Module):
                     sparse_offset_group_batch,
                     per_sample_weights=per_sample_weights,
                 )
-
-                ly.append(V)
+                # change V to float16
+                ly.append(V.to(torch.float16))
 
         # print(ly)
         return ly
@@ -700,6 +700,7 @@ class DLRM_Net(nn.Module):
         '''
         # embeddings
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
+
         # debug prints
         # print(ly)
         '''
