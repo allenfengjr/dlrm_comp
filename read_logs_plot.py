@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 filename = {
     #"original":"/N/u/haofeng/BigRed200/dlrm/bigred_1616203.log", 
-    "quantize": "/N/u/haofeng/BigRed200/dlrm/bigred_1818494.log"
+    "quantize": "/N/u/haofeng/BigRed200/dlrm/bigred_1818494.log",
+    "fp16": "/N/u/haofeng/BigRed200/dlrm/kagglefp16_1825274.log"
     #"SZ5e-2":"/N/u/haofeng/BigRed200/dlrm/bigred_1617330.log",
     #"ZFP3e-1":"/N/u/haofeng/BigRed200/dlrm/bigred_1617344.log",
     }

@@ -63,9 +63,10 @@ $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot="13-512-256-64-16" --a
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
---error-bound=1e-2 \
+--error-bound=2e-2 \
 --compressor="SZ_compressor" \
 --enable-compress \
+--save-embedding \
 --enable-profiling
 $dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 

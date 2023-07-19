@@ -32,11 +32,12 @@ class emb_compressor():
             for s in data:
                 processed_data.append(s)
         elif format == "table_wise_one":
-            processed_data.append(data)
+            processed_data.append(np.stack(data))
         elif format == "sample_wise_one":
+            # this should not be use for very low compression ratio
             processed_data.append(data.transpose([1,0,2]))
         elif format == "flatten":
-            processed_data.append(data.flatten())
+            processed_data.append(np.stack(data).flatten())
         return processed_data
 
     def compress(self, compressor, format,data, tolerance = -1, rate = -1, precision = -1):
@@ -59,6 +60,8 @@ class emb_compressor():
             lib_extention = "so" if platform.system() == 'Linux' else "dylib"
             sz = SZ("/N/u/haofeng/BigRed200/SZ3_build/lib64/libSZ3c.{}".format(lib_extention))
             for s in data:
+                #print("data is, " , data)
+                #print("s is, ", s)
                 a_tolerance = (s.max()-s.min()) * tolerance
                 data_cmpr, data_ratio = sz.compress(s, 0, a_tolerance, 0, 0)
                 res.append(data_cmpr)
@@ -95,7 +98,9 @@ class emb_compressor():
                     tmp = tmp.astype(data_type)
                     res.append(tmp)
             elif format == "sample_wise_one":
-                res.append(sz.decompress(data[0].transpose([1,0,2]), data_shape, data_type))
+                res.append(sz.decompress(data[0], data_shape, data_type).transpose([1,0,2]))
+            elif format == "flatten":
+                res.append(sz.decompress[data[0], data_shape, data_type).reshape()
         elif compressor == "Fake_compressor":
             res = data
         elif compressor == "Noise_generator":

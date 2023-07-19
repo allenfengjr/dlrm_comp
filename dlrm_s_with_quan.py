@@ -472,7 +472,7 @@ class DLRM_Net(nn.Module):
                     per_sample_weights=per_sample_weights,
                 )
 
-                ly.append(V)
+                ly.append(V.to(torch.float16))
 
         # print(ly)
         return ly
