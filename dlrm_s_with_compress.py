@@ -784,8 +784,8 @@ class DLRM_Net(nn.Module):
             data_shape = ly_data[0].shape
             #r_tolerance = 0.01
             r_tolerance = args.error_bound
-            compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="table_wise_one",data=ly_data,tolerance=r_tolerance)
-            new_ly = my_emb_comp.decompress(args.compressor, "table_wise_one", compressed_data, data_shape, data_type)
+            compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
+            new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)
             if iter == 0:
                 print("Compression method: %s, Parameters: %s",args.compressor, r_tolerance)
             for i in range(len(new_ly)):

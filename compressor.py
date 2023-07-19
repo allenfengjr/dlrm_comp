@@ -100,7 +100,8 @@ class emb_compressor():
             elif format == "sample_wise_one":
                 res.append(sz.decompress(data[0], data_shape, data_type).transpose([1,0,2]))
             elif format == "flatten":
-                res.append(sz.decompress[data[0], data_shape, data_type).reshape()
+                original_data_shape = (26, data_shape[0], data_shape[1])
+                res.append(sz.decompress(data[0], (26*data_shape[0]*data_shape[1]), data_type)).reshape(original_data_shape)
         elif compressor == "Fake_compressor":
             res = data
         elif compressor == "Noise_generator":
