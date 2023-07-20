@@ -576,7 +576,7 @@ class DLRM_Net(nn.Module):
         # could be used for subsequent interactions on each device.
         if len(self.emb_l) != len(ly):
             sys.exit("ERROR: corrupted intermediate result in distributed_forward call")
-
+        ext_dist.print_all("rank is, ", ext_dist.my_rank, "ly is, ", ly)
         a2a_req = ext_dist.alltoall(ly, self.n_emb_per_rank)
 
         #with record_function("DLRM bottom mlp forward"):
