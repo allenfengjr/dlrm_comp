@@ -16,10 +16,12 @@ export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/op
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64:$LD_LIBRARY_PATH
 export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/bin/:$PATH
 export LD_LIBRARY_PATH=/N/u/haofeng/BigRed200/fz:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/N/u/haofeng/BigRed200/SZ3_build/lib64/:$LD_LIBRARY_PATH
+
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate dlrm
+conda activate new_dlrm
 
 # set environment varibales
 

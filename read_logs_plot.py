@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 filename = {
     #"original":"/N/u/haofeng/BigRed200/dlrm/bigred_1616203.log", 
     "quantize": "/N/u/haofeng/BigRed200/dlrm/bigred_1818494.log",
-    "fp16": "/N/u/haofeng/BigRed200/dlrm/kagglefp16_1825274.log"
-    #"SZ5e-2":"/N/u/haofeng/BigRed200/dlrm/bigred_1617330.log",
-    #"ZFP3e-1":"/N/u/haofeng/BigRed200/dlrm/bigred_1617344.log",
+    "fp16": "/N/u/haofeng/BigRed200/dlrm/kagglefp16_1825274.log",
+    "SZ1e-2":"/N/u/haofeng/BigRed200/dlrm/bigred_1826944.log",
+    "ZFP5e-2":"/N/u/haofeng/BigRed200/dlrm/bigred_1827199.log",
     }
 results = {}  # dictionary to store results for each log file
 
@@ -20,10 +20,12 @@ for k,v in filename.items():
     compression_ratio = []
     for l in lines:
         words = l.split(" ")
+        while '' in words:
+            words.remove('')
         if words[0] == "Finished":
             loss.append(float(words[-1].rstrip()))
-        elif words[0] == "" and words[1]=="accuracy":
-            accuracy.append(float(words[2]))
+        elif words[0]=="accuracy":
+            accuracy.append(float(words[1]))
         elif words[0] == "Compression" and words[1] == "ratio,":
             compression_ratio.append(float(words[2].rstrip()))
     '''

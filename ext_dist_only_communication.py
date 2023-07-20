@@ -25,8 +25,9 @@ if __name__ == "__main__":
     tensor_size = 32*8192*100*ext_dist.my_size
     table_num = [2]*ext_dist.my_size
     table_num[0] = 3
-    tolerance = 2e-1
-
+    tolerance = 1e-2
+    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
+    sz = SZ("/N/u/haofeng/BigRed200/SZ3_build/lib64/libSZ3c.{}".format(lib_extention))
     # Here we use FZ-GPU to get a fake compression overhead
     # generate alltoall_v data
     original_data = torch.randn((table_num[ext_dist.my_rank], tensor_size), dtype=datatype)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
                     wait=2,
                     warmup=2,
                     active=2),
-                on_trace_ready=torch.profiler.tensorboard_trace_handler('./Log_A2A_comp_result', worker_name='alltoall_v'),
+                on_trace_ready=torch.profiler.tensorboard_trace_handler('./Log_A2A_comp_SZ_result', worker_name='alltoall_v'),
                 record_shapes=True,
                 profile_memory=True,  # This will take 1 to 2 minutes. Setting it to False could greatly speedup.
                 with_stack=True
@@ -51,7 +52,7 @@ if __name__ == "__main__":
             current_time = time.strftime("%H:%M:%S", t)
             print("with compression: ", current_time)
             for s in split_tensors:
-                s.numpy().tofile("need_compression_tensor.bin")
+                #s.numpy().tofile("need_compression_tensor.bin")
                 #s = torch.tensor(np.fromfile("./fail_tensor.bin",np.float32), dtype=torch.float32).to(device)
                 #s_o = s.new_empty(s.shape).to(device)
                 s = s.to(device)
@@ -68,8 +69,13 @@ if __name__ == "__main__":
                 for t in r:
                     s = t.detach().cpu().numpy()
                     a_tolerance = (s.max()-s.min()) * tolerance
-                    c_t = zfpy.compress_numpy(s,tolerance = a_tolerance)
+                    # zfp
+                    #c_t = zfpy.compress_numpy(s,tolerance = a_tolerance)
+                    # sz
+                    c_t, data_ratio = sz.compress(s, 0, a_tolerance, 0, 0)
                     # print("compression ratio", (s.size*s.itemsize)/len(c_t))
+                    # convert the c_t to bytes instead of numpy array
+                    c_t = c_t.tobytes()
                     compressed_data.append(c_t)
                     data_size.append(len(c_t))
 
@@ -113,7 +119,10 @@ if __name__ == "__main__":
             decompressed_numpy = []
             for i in compressed_tensor:
                 tmp = i.cpu().numpy().tobytes()
-                decompressed_numpy.append(zfpy.decompress_numpy(tmp))
+                #zfp
+                #decompressed_numpy.append(zfpy.decompress_numpy(tmp))
+                #sz
+                #decompressed_numpy.append(tmp)
             if iter < 6:
                 p.step()
             iter+=1

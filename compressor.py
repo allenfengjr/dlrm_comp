@@ -86,6 +86,9 @@ class emb_compressor():
                 res.append(zfpy.decompress_numpy(data[0]))
             elif format == "sample_wise_one":
                 res.append(zfpy.decompress_numpy(data[0]).transpose([1,0,2]))
+            elif format == "flatten":
+                original_data_shape = (26, data_shape[0], data_shape[1])
+                res = zfpy.decompress_numpy(data[0]).reshape(original_data_shape)
 
         elif compressor == "SZ_compressor":
             lib_extention = "so" if platform.system() == 'Linux' else "dylib"
@@ -101,7 +104,9 @@ class emb_compressor():
                 res.append(sz.decompress(data[0], data_shape, data_type).transpose([1,0,2]))
             elif format == "flatten":
                 original_data_shape = (26, data_shape[0], data_shape[1])
-                res.append(sz.decompress(data[0], (26*data_shape[0]*data_shape[1]), data_type)).reshape(original_data_shape)
+                res = sz.decompress(data[0], (26*data_shape[0]*data_shape[1],), data_type).reshape(original_data_shape).astype(np.float32)
+                #print("decompress result, size is, ", res.shape,"dtype is, ", res.dtype)
+                #print("original dtype, ", data_type)
         elif compressor == "Fake_compressor":
             res = data
         elif compressor == "Noise_generator":

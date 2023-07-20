@@ -786,18 +786,20 @@ class DLRM_Net(nn.Module):
             r_tolerance = args.error_bound
             compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
             new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)
+            #print('real new_ly dtype, ', new_ly.dtype)
             if iter == 0:
                 print("Compression method: %s, Parameters: %s",args.compressor, r_tolerance)
             for i in range(len(new_ly)):
                 ly[i].data = torch.from_numpy(new_ly[i]).data.to(ly_devices[i])
-            print("Compression ratio,", compression_ratio)
+            #print("Compression ratio,", compression_ratio)
 
             if iter % 1024 == 0:
+                print("Compression ratio, ", compression_ratio)
+                '''
                 for i in range(len(ly_data)):
                     tmp_delta = ly_data[i] - new_ly[i]
                     self.dump_data(tmp_delta, "numpy", savepath, str("sampleDelta_compressor_"+args.compressor+"_eb_"+str(r_tolerance)+"_iter_"+str(iter)+"_table_"+str(i)))
                     print("L2 norm: ", LA.norm(tmp_delta))
-                '''
                 print("Before compression")
                 print(ly_data[1])
                 print("After compression")
