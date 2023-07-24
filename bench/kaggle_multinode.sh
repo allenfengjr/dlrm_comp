@@ -19,7 +19,7 @@ export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/open
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate dlrm
+conda activate new_dlrm
 
 # set environment varibales
 
@@ -39,7 +39,7 @@ else
 fi
 #echo $dlrm_extra_option
 
-dlrm_pt_bin="python dlrm_s_with_compress.py"
+dlrm_pt_bin="python dlrm_s_pytorch.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
 echo "run pytorch ..."
