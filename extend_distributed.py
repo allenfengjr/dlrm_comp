@@ -167,7 +167,8 @@ def init_distributed(rank=-1, local_rank=-1, size=-1, use_gpu=False, backend="")
         # is dist support all_to_all_single? does it need environment varibale?
         if hasattr(dist, "all_to_all_single"):
             try:
-                t = torch.zeros([4])
+                t = torch.zeros([4]) # my point is, why t's size is 4?
+                #t = torch.zeros([my_size])
                 if use_gpu:
                     t = t.cuda()
                 dist.all_to_all_single(t, t)
@@ -201,7 +202,7 @@ class Request(object):
         self.WaitFunction = All2All_Scatter_Wait
 
     def wait(self):
-        ret = self.WaitFunction.apply(self.tensor) # remove *
+        ret = self.WaitFunction.apply(*self.tensor)
         self.req = None
         self.tensor = None
         return ret

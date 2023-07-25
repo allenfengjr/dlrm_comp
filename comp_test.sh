@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=auto
+#SBATCH --job-name=dlrm_test_comp
 #SBATCH -A r00114
 #SBATCH -p gpu
 #SBATCH --nodes=4

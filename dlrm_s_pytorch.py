@@ -576,7 +576,21 @@ class DLRM_Net(nn.Module):
         # could be used for subsequent interactions on each device.
         if len(self.emb_l) != len(ly):
             sys.exit("ERROR: corrupted intermediate result in distributed_forward call")
+
+        # NOTE: ly is not global variance here, it is the list of tensor on CURRENT rank's device
+        # self.n_emb_per_rank is a global variance, this is okay to use
         ext_dist.print_all("rank is, ", ext_dist.my_rank, "ly is, ", ly)
+
+        '''
+        I can even directly apply a PyTorch all_to_all_single for elegence
+        
+        compressed, data_size = compresssion_layer(ly,device_id, eb,...)
+        metadata_alltoall ==> just ignore this?
+        a2a_req = alltoall_v
+        decompressed_ly = decompression_layer(comp, device_id, shape,...)
+
+        NOTE: ly need to be replace later.
+        '''
         a2a_req = ext_dist.alltoall(ly, self.n_emb_per_rank)
 
         #with record_function("DLRM bottom mlp forward"):

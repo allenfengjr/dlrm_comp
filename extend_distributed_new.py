@@ -201,7 +201,8 @@ class Request(object):
         self.WaitFunction = All2All_Scatter_Wait
 
     def wait(self):
-        ret = self.WaitFunction.apply(self.tensor) # remove *
+        # remove *, this is different from the older version
+        ret = self.WaitFunction.apply(self.tensor)
         self.req = None
         self.tensor = None
         return ret
@@ -477,6 +478,7 @@ class All2All_Wait(Function):
             grad_input = grad_output.new_empty(
                 [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
             )
+            # mlgb, `input` is output, `output` is input? and input(s)/output(s), why?
             req = dist.all_to_all_single(
                 grad_input,
                 grad_output,
@@ -547,8 +549,8 @@ class All2All_v_Req(Function):
         global myreq
         with record_function("DLRM alltoall_req_fwd_single"):
             # batch_split_length and table_split_length should be lists: []
-            batch_split_lengths = a2a_info.global_batch_partition_slices
-            table_split_lengths = a2a_info.global_table_wise_parition_slices
+            send_cnt = a2a_info.send_cnt
+            recvive_cnt = a2a_info.recvive_cnt
             # Set the receive buffer
             device = torch.device('cuda', my_local_rank)
             if len(input.shape) > 1:
@@ -560,14 +562,14 @@ class All2All_v_Req(Function):
             # all_to_all_single
             print_all("rank, ", my_rank, "shape[input|output], ", input.shape, output.shape)
             print_all("rank, ", my_rank, "type[input|output], ", input.dtype, output.dtype)
-            print_all("rank, ", my_rank, "input split, ", batch_split_lengths)
-            print_all("rank, ", my_rank, "output split, ", table_split_lengths)
+            print_all("rank, ", my_rank, "input split, ", send_cnt)
+            print_all("rank, ", my_rank, "output split, ", recvive_cnt)
             barrier()
             req = dist.all_to_all_single(
                 output,
                 input,
-                output_split_sizes = table_split_lengths,
-                input_split_sizes = batch_split_lengths,
+                output_split_sizes = recvive_cnt,
+                input_split_sizes = send_cnt,
                 async_op=True
             )
             myreq.req = req
@@ -614,12 +616,14 @@ class All2All_v_Wait(Function):
         global myreq
         with record_function("DLRM alltoall_wait_bwd_single"):
             a2a_info = ctx.a2a_info
-            
-            # The most important part is to make sure how many we send back?
-            # The point is
+            # create a buffer
+            # grad_input is actually the grad of input `ly`
+            # grad_output is the grad of output `ly` after alltoall communication
             grad_input = grad_output.new_empty(
                 [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
             )
+            # calculate the original size
+            # plus, how to get the original size gradient?
             req = dist.all_to_all_single(
                 grad_input,
                 grad_output,
@@ -674,15 +678,14 @@ def alltoall_v(inputs, send_cnt, receive_cnt):
     global myreq
     '''
     The previous function only support alltoall, and wrap too much
-    `per_rank_table_splits` is a list, elements are #table in each rank, but we do not use this in alltoall_v
     `send_cnt`, `receive_cnt` are same as DDP defined
     I do not use a tuple as input, I use a tensor as input.
     It support 1D/2D tensor as input, which is enough for lossy compression approach
     '''
     a2a_info = All2AllInfo()
     a2a_info.local_table_num = len(inputs)    
-    a2a_info.global_batch_partition_slices = send_cnt # input
-    a2a_info.global_table_wise_parition_slices = receive_cnt # output
+    a2a_info.send_cnt = send_cnt # input
+    a2a_info.receive_cnt = receive_cnt # output
     if a2a_impl == "" and alltoall_supported or a2a_impl == "alltoall":
         print("Using All2All_v_Req")
         output = All2All_v_Req.apply(a2a_info, inputs) # I remove * , it used to be *inputs

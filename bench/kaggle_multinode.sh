@@ -8,13 +8,13 @@
 #SBATCH --ntasks-per-node=4
 #SBATCH --time=12:00:00
 #SBATCH --output=kaggle_multinode_%j.log 
-#SBATCH --mem=200G
 
 module load nvidia
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/nccl/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64/stubs/:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64/stubs/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/N/u/haofeng/BigRed200/SZ3_build/lib64/:$LD_LIBRARY_PATH
 export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/bin/:$PATH
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
@@ -23,7 +23,7 @@ conda activate new_dlrm
 
 # set environment varibales
 
-export MASTER_PORT=27149
+export MASTER_PORT=17149
 export WORLD_SIZE=8
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
@@ -62,8 +62,6 @@ mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
---error-bound=1e-2 \
---enable-profiling
 $dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"
