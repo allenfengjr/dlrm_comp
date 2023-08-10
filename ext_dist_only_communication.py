@@ -22,7 +22,7 @@ if __name__ == "__main__":
     device = torch.device('cuda', ext_dist.my_local_rank)
     datatype = torch.float32
     # hardcode data size and number of table
-    tensor_size = 32*8192*100*ext_dist.my_size
+    tensor_size = 1024*1024*400
     table_num = [2]*ext_dist.my_size
     table_num[0] = 3
     tolerance = 1e-2

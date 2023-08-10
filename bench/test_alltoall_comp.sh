@@ -3,19 +3,18 @@
 #SBATCH --job-name=auto
 #SBATCH -A r00114
 #SBATCH -p gpu
-#SBATCH --nodes=2
-#SBATCH --gpus-per-node=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --time=0:30:00
-#SBATCH --output=all_to_all_comp%j.log 
-#SBATCH --mem=200G
+#SBATCH --nodes=8
+#SBATCH --gpus-per-node=4
+#SBATCH --ntasks-per-node=4
+#SBATCH --time=0:10:00
+#SBATCH --output=all_to_all_comp_sz%j.log 
 
 module load nvidia
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/nccl/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64:$LD_LIBRARY_PATH
 export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/bin/:$PATH
-export LD_LIBRARY_PATH=/N/u/haofeng/BigRed200/fz:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/N/u/haofeng/BigRed200/FZ-GPU:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/u/haofeng/BigRed200/SZ3_build/lib64/:$LD_LIBRARY_PATH
 
 module load cudatoolkit
@@ -26,7 +25,7 @@ conda activate new_dlrm
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=2
+export WORLD_SIZE=32
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}

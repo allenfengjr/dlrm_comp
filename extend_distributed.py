@@ -431,6 +431,7 @@ class All2All_Req(Function):
 
     @staticmethod
     def backward(ctx, *grad_output):
+        # print_all("rank", my_rank,"request backward grad, ", len(grad_output), grad_output[0].shape)
         global myreq
         with record_function("DLRM alltoall_req_bwd_single"):
             a2a_info = ctx.a2a_info
@@ -470,6 +471,9 @@ class All2All_Wait(Function):
 
     @staticmethod
     def backward(ctx, *grad_outputs):
+        # len(grad_outputs) is world_size? why?
+        # len(grad_outputs) should be equal to the size of return value of forward?
+        # print_all("rank, ", my_rank,"wait backward grad, ", len(grad_outputs), grad_outputs[0].shape)
         global myreq
         with record_function("DLRM alltoall_wait_bwd_single"):
             a2a_info = ctx.a2a_info
@@ -660,7 +664,7 @@ def alltoall(inputs, per_rank_table_splits):
     )
 
     if a2a_impl == "" and alltoall_supported or a2a_impl == "alltoall":
-        print("Using All2All_Req")
+        # print("Using All2All_Req")
         output = All2All_Req.apply(a2a_info, *inputs)
         myreq.WaitFunction = All2All_Wait
     elif a2a_impl == "" or a2a_impl == "scatter":

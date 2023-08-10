@@ -6,7 +6,7 @@
 #SBATCH --nodes=2
 #SBATCH --gpus-per-node=4
 #SBATCH --ntasks-per-node=4
-#SBATCH --time=12:00:00
+#SBATCH --time=36:00:00
 #SBATCH --output=kaggle_multinode_%j.log 
 
 module load nvidia
@@ -55,13 +55,13 @@ mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot
 --round-targets=True \
 --learning-rate=0.1 \
 --nepochs=1 \
---mini-batch-size=128 \
+--mini-batch-size=256 \
 --print-freq=1024 \
 --print-time \
 --test-freq=1024 \
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
-$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
+#$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"

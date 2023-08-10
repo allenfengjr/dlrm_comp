@@ -105,7 +105,6 @@ with warnings.catch_warnings():
     except ImportError as error:
         print("Unable to import onnx. ", error)
 
-import compressor
 import torch.profiler
 
 # from torchviz import make_dot
@@ -113,7 +112,6 @@ import torch.profiler
 # from torch.nn.parameter import Parameter
 
 exc = getattr(builtins, "IOError", "FileNotFoundError")
-my_emb_comp = compressor.emb_compressor()
 
 def time_wrap(use_gpu):
     if use_gpu:
@@ -469,8 +467,9 @@ class DLRM_Net(nn.Module):
                     sparse_offset_group_batch,
                     per_sample_weights=per_sample_weights,
                 )
-                # change V to float16
-                ly.append(V.to(torch.float16))
+                # may change V to float16
+                ly.append(V)
+                # ly.append(V.to(torch.float16))
 
         # print(ly)
         return ly
@@ -568,7 +567,12 @@ class DLRM_Net(nn.Module):
         # embeddings
         #with record_function("DLRM embedding forward"):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
-
+        if iter%1024*32==0:
+            savepath = "/N/scratch/haofeng/TB_emb"
+            for i,e in enumerate(ly):
+                outputpath = savepath+"/embedding_output_vector_"+str(ext_dist.my_rank)+"_"+str(i)+"_batch_"+str(int(iter/1024))+".bin"
+                narr = e.cpu().detach().numpy()
+                narr.tofile(outputpath)
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each rank. We would like to obtain partial results
         # corresponding to all embedding lookups, but part of the batch on each rank.
@@ -579,7 +583,7 @@ class DLRM_Net(nn.Module):
 
         # NOTE: ly is not global variance here, it is the list of tensor on CURRENT rank's device
         # self.n_emb_per_rank is a global variance, this is okay to use
-        ext_dist.print_all("rank is, ", ext_dist.my_rank, "ly is, ", ly)
+        # ext_dist.print_all("rank is, ", ext_dist.my_rank, "ly is, ", ly)
 
         '''
         I can even directly apply a PyTorch all_to_all_single for elegence
@@ -592,16 +596,15 @@ class DLRM_Net(nn.Module):
         NOTE: ly need to be replace later.
         '''
         a2a_req = ext_dist.alltoall(ly, self.n_emb_per_rank)
-
         #with record_function("DLRM bottom mlp forward"):
         x = self.apply_mlp(dense_x, self.bot_l)
-
         ly = a2a_req.wait()
         ly = list(ly)
 
         # interactions
         #with record_function("DLRM interaction forward"):
         z = self.interact_features(x, ly)
+        # ext_dist.print_all("My rank, ", ext_dist.my_rank, "z grad, ",z.grad)
 
         # top mlp
         #with record_function("DLRM top nlp forward"):
@@ -717,14 +720,15 @@ class DLRM_Net(nn.Module):
 
         # debug prints
         # print(ly)
-        '''
         
-        if iter%100==0:
+        
+        if iter%1024==0:
+            savepath = "/N/scratch/haofeng/TB_emb"
             for i,e in enumerate(ly):
-                outputpath = savepath+"/embedding_outputs/embedding_output_vector_"+str(i)+"_batch_"+str(int(iter/100))+".bin"
+                outputpath = savepath+"/embedding_output_vector_"+str(ext_dist.my_rank)+"_"+str(i)+"_batch_"+str(int(iter/1024))+".bin"
                 narr = e.cpu().detach().numpy()
                 narr.tofile(outputpath)
-        '''
+        
         # butterfly shuffle (implemented inefficiently for now)
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each device. We would like to obtain partial results

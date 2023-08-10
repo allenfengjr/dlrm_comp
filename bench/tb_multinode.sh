@@ -1,30 +1,29 @@
 #!/bin/bash
 
-#SBATCH --job-name=auto
+#SBATCH --job-name=Terebytes
 #SBATCH -A r00114
-#SBATCH -p gpu
+#SBATCH -p general
 #SBATCH --nodes=2
-#SBATCH --gpus-per-node=4
-#SBATCH --ntasks-per-node=4
-#SBATCH --time=12:00:00
-#SBATCH --output=kaggle_multinode_%j.log 
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=24:00:00
+#SBATCH --output=TB_multinode_%j.log 
 #SBATCH --mem=200G
+
 
 module load nvidia
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/nccl/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/cuda/lib64/stubs/:$LD_LIBRARY_PATH
 export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/bin/:$PATH
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate dlrm
+conda activate new_dlrm
 
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=8
+export WORLD_SIZE=2
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -40,8 +39,8 @@ fi
 #echo $dlrm_extra_option
 
 dlrm_pt_bin="python dlrm_s_pytorch.py"
-raw_data="/N/slate/haofeng/TB/raw/day"
-processed_data="/N/slate/haofeng/TB/processed/terabyte_processed.npz"
+raw_data="/N/scratch/haofeng/criteo_TB/raw/day"
+processed_data="/N/scratch/haofeng/criteo_TB/processed/terabyte_processed.npz"
 
 echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
@@ -63,7 +62,7 @@ mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot
 --test-freq=1024 \
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
---use-gpu \
-$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
+#--use-gpu \
+#$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"

@@ -2,11 +2,11 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu
-#SBATCH --nodes=1
+#SBATCH -p gpu-debug
+#SBATCH --nodes=2
 #SBATCH --gpus-per-node=4
-#SBATCH --ntasks-per-node=1
-#SBATCH --time=24:00:00
+#SBATCH --ntasks-per-node=4
+#SBATCH --time=2:00:00
 #SBATCH --output=kagglefp16_%j.log 
 #SBATCH --mem=200G
 
@@ -36,6 +36,14 @@ else
     dlrm_extra_option=""
 fi
 #echo $dlrm_extra_option
+export MASTER_PORT=27149
+export WORLD_SIZE=8
+export DLRM_ALLTOALL_IMPL="alltoall"
+echo "WORLD_SIZE="$WORLD_SIZE
+echo "NODELIST="${SLURM_NODELIST}
+master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
+export MASTER_ADDR=$master_addr
+echo "MASTER_ADDR="$MASTER_ADDR
 
 dlrm_pt_bin="python dlrm_s_pytorch.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
@@ -45,7 +53,7 @@ echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
 # --arch-embedding-size=... (sparse feature sizes)
 # --arch-mlp-bot=... (the input to the first layer of bottom mlp)
-$dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot="13-512-256-64-16" --arch-mlp-top="512-256-1" \
+mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot="13-512-256-64-16" --arch-mlp-top="512-256-1" \
 --data-generation=dataset \
 --data-set=kaggle \
 --processed-data-file=$processed_data \
@@ -62,6 +70,6 @@ $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot="13-512-256-64-16" --a
 --test-num-workers=16 \
 --use-gpu \
 
-$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
+#$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"

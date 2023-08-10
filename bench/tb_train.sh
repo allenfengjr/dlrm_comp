@@ -57,6 +57,6 @@ $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 
-$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
+#$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"

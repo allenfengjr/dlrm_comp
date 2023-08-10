@@ -478,7 +478,6 @@ class All2All_Wait(Function):
             grad_input = grad_output.new_empty(
                 [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
             )
-            # mlgb, `input` is output, `output` is input? and input(s)/output(s), why?
             req = dist.all_to_all_single(
                 grad_input,
                 grad_output,
@@ -550,32 +549,32 @@ class All2All_v_Req(Function):
         with record_function("DLRM alltoall_req_fwd_single"):
             # batch_split_length and table_split_length should be lists: []
             send_cnt = a2a_info.send_cnt
-            recvive_cnt = a2a_info.recvive_cnt
+            receive_cnt = a2a_info.receive_cnt
             # Set the receive buffer
             device = torch.device('cuda', my_local_rank)
             if len(input.shape) > 1:
                 emb_len = input.shape[1]
                 print("embedding len is, ", emb_len)
-                output = torch.cuda.ByteTensor(int(sum(table_split_lengths)*input.element_size()*emb_len)).view(input.dtype).reshape(-1,emb_len)
+                output = torch.cuda.ByteTensor(int(sum(receive_cnt)*input.element_size()*emb_len)).view(input.dtype).reshape(-1,emb_len)
             else:
-                output = torch.cuda.ByteTensor(sum(table_split_lengths)*input.element_size()).view(input.dtype)
+                output = torch.cuda.ByteTensor(sum(receive_cnt)*input.element_size()).view(input.dtype)
             # all_to_all_single
             print_all("rank, ", my_rank, "shape[input|output], ", input.shape, output.shape)
             print_all("rank, ", my_rank, "type[input|output], ", input.dtype, output.dtype)
             print_all("rank, ", my_rank, "input split, ", send_cnt)
-            print_all("rank, ", my_rank, "output split, ", recvive_cnt)
+            print_all("rank, ", my_rank, "output split, ", receive_cnt)
             barrier()
             req = dist.all_to_all_single(
                 output,
                 input,
-                output_split_sizes = recvive_cnt,
+                output_split_sizes = receive_cnt,
                 input_split_sizes = send_cnt,
                 async_op=True
             )
             myreq.req = req
             myreq.tensor = output
-            a2a_info.batch_split_lengths = batch_split_lengths
-            a2a_info.table_split_lengths = table_split_lengths
+            a2a_info.batch_split_lengths = send_cnt
+            a2a_info.table_split_lengths = receice_cnt
             myreq.a2a_info = a2a_info
             ctx.a2a_info = a2a_info
             return output
@@ -612,23 +611,28 @@ class All2All_v_Wait(Function):
             return output
 
     @staticmethod
-    def backward(ctx, grad_output):
+    def backward(ctx, grad_outputs):
         global myreq
         with record_function("DLRM alltoall_wait_bwd_single"):
             a2a_info = ctx.a2a_info
             # create a buffer
             # grad_input is actually the grad of input `ly`
             # grad_output is the grad of output `ly` after alltoall communication
+            grad_outputs = [gout.contiguous().view([-1]) for gout in grad_outputs]
+            grad_output = torch.cat(grad_outputs)
             grad_input = grad_output.new_empty(
                 [a2a_info.batch_size * a2a_info.local_table_num * a2a_info.emb_dim]
             )
             # calculate the original size
             # plus, how to get the original size gradient?
+            # one very important argument is n_emb_per_rank. will it be used as a environment variable or
+            send_cnt = a2a_info.n_emb_per_rank * a2a_info.local_batch_size * a2a_info.emb_dim
+            receive_cnt = [a2a_info.local_batch_size * a2a_info.emb_dim] * my_size
             req = dist.all_to_all_single(
                 grad_input,
                 grad_output,
-                a2a_info.batch_split_lengths,
-                a2a_info.table_split_lengths,
+                receive_cnt, # output split
+                send_cnt, # input split
                 async_op=True,
             )
             myreq.req = req
@@ -643,10 +647,6 @@ def alltoall(inputs, per_rank_table_splits):
     a2a_info = All2AllInfo()
     a2a_info.local_table_num = len(inputs)
     a2a_info.global_table_wise_parition_slices = per_rank_table_splits
-    (
-        a2a_info.local_batch_num,
-        a2a_info.global_batch_partition_slices,
-    ) = get_split_lengths(batch_size)
     a2a_info.emb_dim = emb_dim
     a2a_info.batch_size = batch_size
     a2a_info.global_table_num = (
@@ -683,7 +683,15 @@ def alltoall_v(inputs, send_cnt, receive_cnt):
     It support 1D/2D tensor as input, which is enough for lossy compression approach
     '''
     a2a_info = All2AllInfo()
-    a2a_info.local_table_num = len(inputs)    
+    a2a_info.local_table_num = len(inputs)
+    # (batch_size, emb_dim) = original_size
+    # local batch size
+    '''
+    (
+        a2a_info.local_batch_size,
+        a2a_info.global_batch_partition_slices,
+    ) = get_split_lengths(batch_size)
+    '''
     a2a_info.send_cnt = send_cnt # input
     a2a_info.receive_cnt = receive_cnt # output
     if a2a_impl == "" and alltoall_supported or a2a_impl == "alltoall":

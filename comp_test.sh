@@ -3,11 +3,11 @@
 #SBATCH --job-name=dlrm_test_comp
 #SBATCH -A r00114
 #SBATCH -p gpu
-#SBATCH --nodes=4
-#SBATCH --gpus-per-node=4
-#SBATCH --ntasks-per-node=4
+#SBATCH --nodes=2
+#SBATCH --gpus-per-node=1
+#SBATCH --ntasks-per-node=1
 #SBATCH --time=0:30:00
-#SBATCH --output=all_to_all_v%j.log 
+#SBATCH --output=test_comp_%j.log 
 #SBATCH --mem=200G
 
 module load nvidia
@@ -23,7 +23,7 @@ conda activate new_dlrm
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=16
+export WORLD_SIZE=2
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -38,7 +38,7 @@ else
 fi
 #echo $dlrm_extra_option
 
-dlrm_pt_bin="python ext_dist_test.py"
+dlrm_pt_bin="python comp_test.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
 echo "run pytorch ..."

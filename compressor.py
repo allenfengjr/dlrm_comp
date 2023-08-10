@@ -165,7 +165,7 @@ def concatAndOffset(listOfData):
 
 # compression and decompression round trip
 def pfz_round_trip():
-    so_path = '/N/u/haofeng/BigRed200/fz/fz-gpu.so'
+    so_path = '/N/u/haofeng/BigRed200/FZ-GPU/fz-gpu.so'
     dll = ctypes.CDLL(so_path, mode=ctypes.RTLD_GLOBAL)
     func = dll.fzRoundTrip
     func.argtypes = [POINTER(c_float), POINTER(c_float), c_int, c_int, c_int, c_int, c_double]
