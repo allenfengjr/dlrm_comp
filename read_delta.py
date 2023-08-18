@@ -14,6 +14,13 @@ def read_bin_file(root_dir, device, table_order, batch):
     data = np.fromfile(filepath, dtype = np.float16)
     return data
 
+def quantization(original_np_array, r_error_bound):
+    a_error_bound = (original_np_array.max() - original_np_array.min()) * r_error_bound
+    quantized_array = np.empty(original_np_array.shape)
+    for idx, val in np.ndenumerate(original_np_array):
+        quantized_array[ind] = round(round(val/2*a_error_bound) * (2*a_error_bound))
+    return quantized_array.astype(np.int16) # maybe int32?
+
 def calculate_l2_norm(data):
     norm = np.linalg.norm(data)
     return norm

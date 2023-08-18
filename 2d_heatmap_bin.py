@@ -19,6 +19,14 @@ def save_image(df, fileName, index):
     figure_name = fileName[31:-4] + "_binary_" + str(index)
     plt.savefig(figure_name, dpi=300)
 
+def quantization(original_np_array, r_error_bound):
+    a_error_bound = (original_np_array.max() - original_np_array.min()) * r_error_bound
+    quantized_array = np.empty(original_np_array.shape)
+    for idx, val in np.ndenumerate(original_np_array):
+        quantized_array[ind] = round(val/2*a_error_bound)
+        print(val/2*a_error_bound)
+    return quantized_array.astype(np.int16) # maybe int32?
+
 def trans2heatmap(fileName, n):
     # fileName = "/data/lab/tao/boyuan/1800x3600/SOLIN_1_1800_3600.f32"
     # n = 1800 * 3600
