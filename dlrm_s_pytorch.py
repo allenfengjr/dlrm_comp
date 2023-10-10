@@ -723,9 +723,9 @@ class DLRM_Net(nn.Module):
         
         
         if iter%1024==0:
-            savepath = "/N/scratch/haofeng/TB_emb"
+            savepath = "/N/scratch/haofeng/TB_emb_32"
             for i,e in enumerate(ly):
-                outputpath = savepath+"/embedding_output_vector_"+str(ext_dist.my_rank)+"_"+str(i)+"_batch_"+str(int(iter/1024))+".bin"
+                outputpath = f"{savepath}/embedding_output_vector_table_{i}_epoch_{epoch}_iter_{iter}.bin"
                 narr = e.cpu().detach().numpy()
                 narr.tofile(outputpath)
         
@@ -1953,5 +1953,7 @@ def run():
 if __name__ == "__main__":
     run()
     my_tolerance = 'r_1e-3'
+    '''
     with open('com_ratio_'+my_tolerance+'.txt', 'w') as convert_file:
       convert_file.write(json.dumps(my_emb_comp.ratioLog))
+    '''

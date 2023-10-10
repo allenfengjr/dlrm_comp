@@ -2,13 +2,14 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu-debug
-#SBATCH --nodes=2
+#SBATCH -p gpu
+#SBATCH --nodes=1
 #SBATCH --gpus-per-node=4
-#SBATCH --ntasks-per-node=4
-#SBATCH --time=2:00:00
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=12:00:00
 #SBATCH --output=kagglefp16_%j.log 
 #SBATCH --mem=200G
+#SBATCH 
 
 module load nvidia
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/nccl/lib/:$LD_LIBRARY_PATH
@@ -37,7 +38,7 @@ else
 fi
 #echo $dlrm_extra_option
 export MASTER_PORT=27149
-export WORLD_SIZE=8
+export WORLD_SIZE=1
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -53,7 +54,7 @@ echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
 # --arch-embedding-size=... (sparse feature sizes)
 # --arch-mlp-bot=... (the input to the first layer of bottom mlp)
-mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot="13-512-256-64-16" --arch-mlp-top="512-256-1" \
+mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --arch-mlp-top="512-256-1" \
 --data-generation=dataset \
 --data-set=kaggle \
 --processed-data-file=$processed_data \
@@ -61,8 +62,8 @@ mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=16 --arch-mlp-bot
 --loss-function=bce \
 --round-targets=True \
 --learning-rate=0.1 \
---nepochs=1 \
---mini-batch-size=128 \
+--nepochs=16 \
+--mini-batch-size=131072 \
 --print-freq=1024 \
 --print-time \
 --test-freq=1024 \
