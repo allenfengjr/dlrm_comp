@@ -62,6 +62,7 @@ import json
 import string
 import sys
 import time
+import os
 
 # onnx
 # The onnx import causes deprecation warnings every time workers
@@ -107,15 +108,55 @@ with warnings.catch_warnings():
         print("Unable to import onnx. ", error)
 
 import compressor
+from pysz import SZ
 import zfpy
 import torch.profiler
+import platform
+
 
 # from torchviz import make_dot
 # import torch.nn.functional as Functional
 # from torch.nn.parameter import Parameter
 
-exc = getattr(builtins, "IOError", "FileNotFoundError")
-my_emb_comp = compressor.emb_compressor()
+# exc = getattr(builtins, "IOError", "FileNotFoundError")
+# my_emb_comp = compressor.emb_compressor()
+def sz_comp_decomp(data, r_eb, data_shape, data_type):
+    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
+    sz = SZ("/N/u/haofeng/BigRed200/SZ3_build/lib64/libSZ3c.{}".format(lib_extention))
+    a_eb = (data.max()-data.min()) * r_eb
+    data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
+    data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
+    return data_dcmp.astype(data_type)
+
+error_bound = []
+
+def build_error_bound():
+    global error_bound
+    
+    # Read environment variables
+    tighten_eb_tables_str = os.environ.get("TIGHTEN_EB_TABLES", "")
+    loosen_eb_tables_str = os.environ.get("LOOSEN_EB_TABLES", "")
+
+    tighten_eb_value = float(os.environ.get("TIGHTEN_EB_VALUE", "0.05"))
+    loosen_eb_value = float(os.environ.get("LOOSEN_EB_VALUE", "0.2"))
+
+    base_error_bound = float(os.environ.get("BASE_ERROR_BOUND", "0.01"))
+
+
+    # Convert string to list of integers
+    tighten_eb_tables = [int(t) for t in tighten_eb_tables_str.split()]
+    loosen_eb_tables = [int(t) for t in loosen_eb_tables_str.split()]
+
+
+    # Build the error_bound list
+    num_tables = 26  # Replace with your actual number of tables
+    error_bound = [base_error_bound] * num_tables
+
+    for idx in tighten_eb_tables:
+        error_bound[idx] = tighten_eb_value
+    for idx in loosen_eb_tables:
+        error_bound[idx] = loosen_eb_value
+
 
 def time_wrap(use_gpu):
     if use_gpu:
@@ -777,25 +818,35 @@ class DLRM_Net(nn.Module):
         ly_devices = []
         for _ in ly:
             ly_devices.append(_.device)
-        if args.enable_compress and not is_test:
+        enable_compress = True
+        if enable_compress and not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
             #ly_data = torch.stack(ly_data).numpy()
             data_type = ly_data[0].dtype
             data_shape = ly_data[0].shape
-            #r_tolerance = 0.01
+            #r_tolerance is not a global value
             r_tolerance = args.error_bound
-            compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
-            new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)
-            #print('real new_ly dtype, ', new_ly.dtype)
+            # Here I remove the `compressor`, just apply very simple implement
+            
+            for i in range(len(ly)):
+                if iter == 0:
+                    print("Original, ", ly[i])
+                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
+                if iter == 0:
+                    print("Comp_Decomp, ", ly[i])
+                
+
+            # compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
+            # new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)
+            # print('real new_ly dtype, ', new_ly.dtype)
+            
+            #print("Compression ratio,", compression_ratio)
+            '''
             if iter == 0:
                 print("Compression method: %s, Parameters: %s",args.compressor, r_tolerance)
-            for i in range(len(new_ly)):
-                ly[i].data = torch.from_numpy(new_ly[i]).data.to(ly_devices[i])
-            #print("Compression ratio,", compression_ratio)
-
             if iter % 1024 == 0:
                 print("Compression ratio, ", compression_ratio)
-                '''
                 for i in range(len(ly_data)):
                     tmp_delta = ly_data[i] - new_ly[i]
                     self.dump_data(tmp_delta, "numpy", savepath, str("sampleDelta_compressor_"+args.compressor+"_eb_"+str(r_tolerance)+"_iter_"+str(iter)+"_table_"+str(i)))
@@ -808,8 +859,6 @@ class DLRM_Net(nn.Module):
                 print(ly_data[1]-new_ly[1])
                 print("After assign value")
                 print(ly[1].data)
-                '''
-            
             #my_emb_comp.recordRatio(name="ZFP_table_wise_seperate",ratio=compression_ratio)
 
         # dump embedding vectors
@@ -824,7 +873,6 @@ class DLRM_Net(nn.Module):
                     self.dump_data(d,"numpy",savepath,str("2D_sample_"+str(i)+"_Epoch_"+str(epoch)))
         # debug prints
         # print(ly)
-        '''
         
         if iter%100==0:
             for i,e in enumerate(ly):
@@ -2059,7 +2107,8 @@ def run():
 
 
 if __name__ == "__main__":
+    build_error_bound()
+    print("error bounds are, ", error_bound)
     run()
-    compress_comfig = "sz_1e-1"
-    with open(compress_comfig+'.txt', 'w') as convert_file:
-      convert_file.write(json.dumps(my_emb_comp.ratioLog))
+    #with open(compress_comfig+'.txt', 'w') as convert_file:
+      #convert_file.write(json.dumps(my_emb_comp.ratioLog))

@@ -2,12 +2,12 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu
+#SBATCH -p gpu-debug
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=4
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=12:00:00
-#SBATCH --output=kagglefp16_%j.log 
+#SBATCH --time=2:00:00
+#SBATCH --output=table_wise_ratio_%j.log 
 #SBATCH --mem=200G
 #SBATCH 
 
@@ -46,7 +46,15 @@ master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_ADDR=$master_addr
 echo "MASTER_ADDR="$MASTER_ADDR
 
-dlrm_pt_bin="python dlrm_s_pytorch.py"
+# Define error bound
+# Indices of the tables with custom error bounds
+export CUSTOM_EB_TABLES="2 3 9 11 15 20 23 25"
+# Custom error bound for the tables defined above
+export CUSTOM_EB_VALUE="0.005"
+# Base error bound for all other tables
+export BASE_ERROR_BOUND="0.05"
+
+dlrm_pt_bin="python dlrm_s_with_compress.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
@@ -62,14 +70,15 @@ mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot
 --loss-function=bce \
 --round-targets=True \
 --learning-rate=0.1 \
---nepochs=16 \
---mini-batch-size=131072 \
+--nepochs=1 \
+--mini-batch-size=1024 \
 --print-freq=1024 \
 --print-time \
 --test-freq=1024 \
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
+--enable-compress
 
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 

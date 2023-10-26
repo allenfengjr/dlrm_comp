@@ -2,11 +2,12 @@
 
 #SBATCH --job-name=Terebytes
 #SBATCH -A r00114
-#SBATCH -p general
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --time=48:00:00
-#SBATCH --output=TB_multinode_%j.log 
+#SBATCH -p gpu
+#SBATCH --nodes=4
+#SBATCH --gpus-per-node=4
+#SBATCH --ntasks-per-node=4
+#SBATCH --time=4:00:00
+#SBATCH --output=TB_multi_%j.log 
 #SBATCH --mem=200G
 
 
@@ -23,7 +24,7 @@ conda activate new_dlrm
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=1
+export WORLD_SIZE=16
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -47,7 +48,7 @@ echo "run pytorch ..."
 # --arch-embedding-size=... (sparse feature sizes)
 # --arch-mlp-bot=... (the input to the first layer of bottom mlp)
 # mpirun -np $WORLD_SIZE
-$dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch-mlp-top="512-512-256-1" \
+mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch-mlp-top="512-512-256-1" \
 --max-ind-range=10000000 \
 --data-generation=dataset \
 --data-set=terabyte \
@@ -64,7 +65,7 @@ $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --memory-map \
-#--use-gpu \
+--use-gpu \
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"
