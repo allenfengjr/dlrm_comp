@@ -129,10 +129,12 @@ def sz_comp_decomp(data, r_eb, data_shape, data_type):
     return data_dcmp.astype(data_type)
 
 error_bound = []
-
+early_stage = 0
+cycle_length = 0
 def build_error_bound():
     global error_bound
-    
+    global cycle_length
+    global early_stage
     # Read environment variables
     tighten_eb_tables_str = os.environ.get("TIGHTEN_EB_TABLES", "")
     loosen_eb_tables_str = os.environ.get("LOOSEN_EB_TABLES", "")
@@ -141,6 +143,8 @@ def build_error_bound():
     loosen_eb_value = float(os.environ.get("LOOSEN_EB_VALUE", "0.2"))
 
     base_error_bound = float(os.environ.get("BASE_ERROR_BOUND", "0.01"))
+    early_stage = int(os.environ.get("EARLY_STAGE", "65536"))
+    cycle_length = int(os.environ.get("CYCLE_LEN_COMP", "2048"))
 
 
     # Convert string to list of integers
@@ -151,22 +155,28 @@ def build_error_bound():
     # Build the error_bound list
     num_tables = 26  # Replace with your actual number of tables
     error_bound = [base_error_bound] * num_tables
-    '''
-    use global
 
     for idx in tighten_eb_tables:
         error_bound[idx] = tighten_eb_value
     for idx in loosen_eb_tables:
         error_bound[idx] = loosen_eb_value
-    '''
 
+def stage_check(iter):
+    # This will return a conf of error bound
+    global early_stage
+    global cycle_length
+    if iter < early_stage:
+        # decay
+        return 0.1 * int(iter*10/early_stage)
+    else:
+        if (iter - early_stage)/(cycle_length*2) < cycle_length:
+            return 1
+        else:
+            return 0.8 # Should be adaptive
 
-def stage_check(iter, cycle_length, split_point):
-    # This will return 'compression stage' or 'originl stage'
-    if (iter%cycle_length) < split_point:
-        return 'compression_stage'
-    return 'original_stage'
-
+def adaptive_sample(sample_data):
+    # This function should use a sample data to check the 
+    pass
 
 def time_wrap(use_gpu):
     if use_gpu:
@@ -828,10 +838,15 @@ class DLRM_Net(nn.Module):
         ly_devices = []
         for _ in ly:
             ly_devices.append(_.device)
-        # enable_compress = (iter % 1024) < 256 # cyclic compress
-        enable_compress = True
+        enable_compress = (iter % 1024) < 256 # cyclic compress
+        eb_conf = stage_check(iter)
         if enable_compress and not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
+            if iter % 4096:
+                # dump
+                for i in range(len(ly)):
+                    finalpath = f'/N/slate/haofeng/Kaggle_EMB/table_{i}_iter_{int(iter/4096)}.bin'
+                    np.save(finalpath, ly_data[i])
             #ly_data = torch.stack(ly_data).numpy()
             data_type = ly_data[0].dtype
             data_shape = ly_data[0].shape
@@ -840,9 +855,8 @@ class DLRM_Net(nn.Module):
             # Here I remove the `compressor`, just apply very simple implement
             
             for i in range(len(ly)):
-                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
                 ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
-                
 
             # compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
             # new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)

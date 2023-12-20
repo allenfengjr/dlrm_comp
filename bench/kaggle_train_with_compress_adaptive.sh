@@ -7,7 +7,7 @@
 #SBATCH --gpus-per-node=4
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=24:00:00
-#SBATCH --output=global_conf_%j.log 
+#SBATCH --output=adaptive_%j.log 
 #SBATCH --mem=200G
 
 module load nvidia
@@ -55,7 +55,14 @@ export LOOSEN_EB_VALUE="0.03"
 # Base error bound for all other tables
 export BASE_ERROR_BOUND="0.02"
 
-dlrm_pt_bin="python dlrm_s_with_compress.py"
+# Early Stage: 1024 * 64(total 306969 mini-batch as 128 batch size)
+export EARLY_STAGE=65536
+
+# Compress/Uncompress every 4096 mini-batch
+export CYCLE_LEN_COMP=4096
+export CYCLE_LEN_NO_COMP=4096
+
+dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"

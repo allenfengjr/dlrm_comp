@@ -90,7 +90,6 @@ def init_distributed(rank=-1, local_rank=-1, size=-1, use_gpu=False, backend="")
                 "WARNING: MPI multi-process launch detected but PyTorch MPI backend not available."
             )
             backend = "gloo"
-    print(f"The backend is, {backend}")
     if backend != "":
         # guess Rank and size
         if rank == -1:
@@ -159,7 +158,6 @@ def init_distributed(rank=-1, local_rank=-1, size=-1, use_gpu=False, backend="")
                 )
                 sys.exit(1)
             torch.cuda.set_device(my_local_rank)
-        print_all(f"rank is, {rank}, world size is {size}")
         dist.init_process_group(backend, rank=rank, world_size=size)
         my_rank = dist.get_rank()
         my_size = dist.get_world_size()

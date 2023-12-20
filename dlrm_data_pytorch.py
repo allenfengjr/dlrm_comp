@@ -540,7 +540,7 @@ def make_criteo_data_and_loaders(args, offset_to_length_converter=False):
             args.memory_map,
             args.dataset_multiprocessing,
         )
-
+        print("Successfully Build Dataset")
         collate_wrapper_criteo = collate_wrapper_criteo_offset
         if offset_to_length_converter:
             collate_wrapper_criteo = collate_wrapper_criteo_length

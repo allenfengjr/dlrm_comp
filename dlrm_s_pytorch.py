@@ -290,9 +290,9 @@ class DLRM_Net(nn.Module):
         print(self.emb_l)
         for i,e in enumerate(self.emb_l):
             print(e.weight.shape)
-            narr = e.weight.cpu().detach().numpy()
-            tablepath = savepath+"/embedding_tables/embedding_layer_"+str(i)+"_epoch_"+str(idx)+".bin"
-            narr.tofile(tablepath)
+            # narr = e.weight.cpu().detach().numpy()
+            # tablepath = savepath+"/embedding_tables/embedding_layer_"+str(i)+"_epoch_"+str(idx)+".bin"
+            # narr.tofile(tablepath)
         return 
 
     def dump_data(self,data, type, savepath, filename):
@@ -533,15 +533,15 @@ class DLRM_Net(nn.Module):
         # edit to check
         if ext_dist.my_size > 1:
             # multi-node multi-device run
-            return self.distributed_forward(dense_x, iter, lS_o, lS_i)
+            return self.distributed_forward(dense_x, iter, epoch, lS_o, lS_i)
         elif self.ndevices <= 1:
             # single device run
-            return self.sequential_forward(dense_x, iter, lS_o, lS_i)
+            return self.sequential_forward(dense_x, iter, epoch, lS_o, lS_i)
         else:
             # single-node multi-device run
             return self.parallel_forward(dense_x, iter, epoch, lS_o, lS_i)
 
-    def distributed_forward(self, dense_x, iter, lS_o, lS_i):
+    def distributed_forward(self, dense_x, iter, epoch, lS_o, lS_i):
         batch_size = dense_x.size()[0]
         # WARNING: # of ranks must be <= batch size in distributed_forward call
         if batch_size < ext_dist.my_size:
@@ -567,12 +567,14 @@ class DLRM_Net(nn.Module):
         # embeddings
         #with record_function("DLRM embedding forward"):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
+        '''
         if iter%1024*32==0:
             savepath = "/N/scratch/haofeng/TB_emb"
             for i,e in enumerate(ly):
                 outputpath = savepath+"/embedding_output_vector_"+str(ext_dist.my_rank)+"_"+str(i)+"_batch_"+str(int(iter/1024))+".bin"
                 narr = e.cpu().detach().numpy()
                 narr.tofile(outputpath)
+        '''
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each rank. We would like to obtain partial results
         # corresponding to all embedding lookups, but part of the batch on each rank.
@@ -618,7 +620,7 @@ class DLRM_Net(nn.Module):
 
         return z
 
-    def sequential_forward(self, dense_x, iter, lS_o, lS_i):
+    def sequential_forward(self, dense_x, iter, epoch, lS_o, lS_i):
         # process dense features (using bottom mlp), resulting in a row vector
         x = self.apply_mlp(dense_x, self.bot_l)
         # debug prints
@@ -629,6 +631,9 @@ class DLRM_Net(nn.Module):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
         # for y in ly:
         #     print(y.detach().cpu().numpy())
+        if iter == 0:
+            for e in self.emb_l:
+                print(e) # TypeError: object of type 'EmbeddingBag' has no len()
 
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
@@ -1634,7 +1639,7 @@ def run():
                             continue
 
                         mbs = T.shape[0]  # = args.mini_batch_size except maybe for last
-                        # forward pass
+                        # forward pass, k is epoch, j is iter
                         Z = dlrm_wrap(
                             X,
                             j,
