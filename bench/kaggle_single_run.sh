@@ -32,6 +32,7 @@ export EARLY_STAGE=65536
 export CYCLE_LEN_COMP=4096
 export CYCLE_LEN_NO_COMP=4096
 export DECAY_FUNC="log"
+export SZ_PATH="/home/haofeng/SZ3/build/lib/"
 
 dlrm_pt_bin="python /home/haofeng/dlrm_comp/dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"

@@ -123,7 +123,8 @@ import platform
 # my_emb_comp = compressor.emb_compressor()
 def sz_comp_decomp(data, r_eb, data_shape, data_type):
     lib_extention = "so" if platform.system() == 'Linux' else "dylib"
-    sz = SZ("/N/u/haofeng/BigRed200/SZ3_build/lib64/libSZ3c.{}".format(lib_extention))
+    sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
+    sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
     a_eb = (data.max()-data.min()) * r_eb
     data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
     data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
