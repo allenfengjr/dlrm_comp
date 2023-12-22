@@ -163,7 +163,7 @@ def build_error_bound():
         error_bound[idx] = loosen_eb_value
 
 def stage_check(iter, decay_func):
-    # This will return a conf of error bound
+    # This will return a coefficient of error bound
     # Linear
     global early_stage
     global cycle_length
@@ -171,10 +171,15 @@ def stage_check(iter, decay_func):
         # linear decay
         return 2.0 * (1 - iter/(2*early_stage))
     elif iter < early_stage and decay_func is "log":
+        # log decay
         return 2.0 * (1 - math.log(1 + iter/(early_stage), 4))
+    elif iter < early_stage and decay_func is "step":
+        # step decay
+        return 2.0  - 0.1 * int(10*iter/(early_stage))
     else:
         return 1.0
     '''
+    # cyclic
     if (iter - early_stage)/(cycle_length*2) < cycle_length:
             return 1
         else:
@@ -1268,7 +1273,7 @@ def run():
     parser.add_argument("--savepath",type=str, default="/N/scratch/haofeng/")
     parser.add_argument("--save-embedding",action="store_true",default=False)
     parser.add_argument("--enable-compress", action="store_true", default=False)
-    parser.add_argument("--compressor", type=str, default="SZ_compressor")
+    parser.add_argument("--compressor", type=str, default="ZFP_compressor")
     parser.add_argument("--layout", type=str, default="table-wise-seperate")
     parser.add_argument("--error-bound", type=float, default=1e-2)
     global args

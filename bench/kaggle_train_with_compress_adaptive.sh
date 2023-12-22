@@ -20,7 +20,7 @@ module load cudatoolkit
 #echo $LD_LIBRARY_PATH
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate new_dlrm
+conda activate dlrm
 
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 #
@@ -61,7 +61,7 @@ export EARLY_STAGE=65536
 # Compress/Uncompress every 4096 mini-batch
 export CYCLE_LEN_COMP=4096
 export CYCLE_LEN_NO_COMP=4096
-export DECAY_FUNC="log"
+export DECAY_FUNC="step"
 
 dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
