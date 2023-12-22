@@ -167,13 +167,13 @@ def stage_check(iter, decay_func):
     # Linear
     global early_stage
     global cycle_length
-    if iter < early_stage and decay_func is "linear":
+    if iter < early_stage and decay_func == "linear":
         # linear decay
         return 2.0 * (1 - iter/(2*early_stage))
-    elif iter < early_stage and decay_func is "log":
+    elif iter < early_stage and decay_func == "log":
         # log decay
         return 2.0 * (1 - math.log(1 + iter/(early_stage), 4))
-    elif iter < early_stage and decay_func is "step":
+    elif iter < early_stage and decay_func == "step":
         # step decay
         return 2.0  - 0.1 * int(10*iter/(early_stage))
     else:
@@ -760,16 +760,18 @@ class DLRM_Net(nn.Module):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
         # for y in ly:
         #     print(y.detach().cpu().numpy())
-        ly_data = [_.detach().cpu().numpy() for _ in ly]
-        decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
-        eb_conf = stage_check(iter, decay_func)
-        ly_devices = []
-        for _ in ly:
-            ly_devices.append(_.device)
-        for i in range(len(ly)):
-            new_ly = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
-            ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
-
+        
+        if not is_test:
+            ly_data = [_.detach().cpu().numpy() for _ in ly]
+            decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+            eb_conf = stage_check(iter, decay_func)
+            ly_devices = []
+            for _ in ly:
+                ly_devices.append(_.device)
+            for i in range(len(ly)):
+                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
+        
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
         # print(z.detach().cpu().numpy())

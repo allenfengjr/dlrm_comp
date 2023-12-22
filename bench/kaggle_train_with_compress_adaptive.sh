@@ -9,7 +9,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --output=adaptive_%j.log 
 #SBATCH --mem=200G
-
+echo "Baseline"
 module load nvidia
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/nccl/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/lib/:$LD_LIBRARY_PATH
@@ -61,7 +61,7 @@ export EARLY_STAGE=65536
 # Compress/Uncompress every 4096 mini-batch
 export CYCLE_LEN_COMP=4096
 export CYCLE_LEN_NO_COMP=4096
-export DECAY_FUNC="step"
+export DECAY_FUNC="log"
 
 dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
@@ -71,7 +71,7 @@ echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
 # --arch-embedding-size=... (sparse feature sizes)
 # --arch-mlp-bot=... (the input to the first layer of bottom mlp)
-$dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --arch-mlp-top="512-256-1" \
+mpirun $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --arch-mlp-top="512-256-1" \
 --data-generation=dataset \
 --data-set=kaggle \
 --processed-data-file=$processed_data \
