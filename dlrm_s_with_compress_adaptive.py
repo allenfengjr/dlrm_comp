@@ -862,15 +862,17 @@ class DLRM_Net(nn.Module):
         ly_devices = []
         for _ in ly:
             ly_devices.append(_.device)
-        enable_compress = (iter % 1024) < 256 # cyclic compress
+        enable_compress = True #(iter % 1024) < 256 # cyclic compress
         eb_conf = stage_check(iter, "linear")
         if enable_compress and not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
+            '''
             if iter % 4096:
                 # dump
                 for i in range(len(ly)):
                     finalpath = f'/N/slate/haofeng/Kaggle_EMB/table_{i}_iter_{int(iter/4096)}.bin'
                     np.save(finalpath, ly_data[i])
+            '''
             #ly_data = torch.stack(ly_data).numpy()
             data_type = ly_data[0].dtype
             data_shape = ly_data[0].shape
