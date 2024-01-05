@@ -2,14 +2,14 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu
+#SBATCH -p gpu-debug
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=4:00:00
+#SBATCH --time=1:00:00
 #SBATCH --output=adaptive_%j.log 
 #SBATCH --mem=200G
-echo "Baseline"
+
 module load nvidia
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/nccl/lib/:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/openmpi-4.0.5/lib/:$LD_LIBRARY_PATH
@@ -67,11 +67,13 @@ dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
+echo "Baseline"
+
 echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
 # --arch-embedding-size=... (sparse feature sizes)
 # --arch-mlp-bot=... (the input to the first layer of bottom mlp)
-mpirun $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --arch-mlp-top="512-256-1" \
+$dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --arch-mlp-top="512-256-1" \
 --data-generation=dataset \
 --data-set=kaggle \
 --processed-data-file=$processed_data \
@@ -87,7 +89,8 @@ mpirun $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
---enable-compress
+#--enable-compress \
+#--enable-profiling
 
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 

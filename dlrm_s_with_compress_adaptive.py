@@ -121,10 +121,9 @@ import platform
 
 # exc = getattr(builtins, "IOError", "FileNotFoundError")
 # my_emb_comp = compressor.emb_compressor()
+
+
 def sz_comp_decomp(data, r_eb, data_shape, data_type):
-    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
-    sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
-    sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
     a_eb = (data.max()-data.min()) * r_eb
     data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
     data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
@@ -134,6 +133,7 @@ error_bound = []
 early_stage = 0
 cycle_length = 0
 def build_error_bound():
+    print("Building error bound")
     global error_bound
     global cycle_length
     global early_stage
@@ -864,7 +864,9 @@ class DLRM_Net(nn.Module):
         for _ in ly:
             ly_devices.append(_.device)
         enable_compress = True #(iter % 1024) < 256 # cyclic compress
-        eb_conf = stage_check(iter, "linear")
+        # eb_conf = stage_check(iter, "linear")
+        decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+        eb_conf = stage_check(iter, decay_func)
         if enable_compress and not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
             '''
@@ -2155,6 +2157,10 @@ def run():
 
 
 if __name__ == "__main__":
+    print("start")
+    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
+    sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
+    sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
     build_error_bound()
     print("error bounds are, ", error_bound)
     run()
