@@ -4,7 +4,7 @@
 #SBATCH -A bcev-delta-gpu
 #SBATCH -p gpuA100x4
 #SBATCH --nodes=1
-#SBATCH --gpus-per-nodes=4
+#SBATCH --gpus-per-node=4
 #SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=240g
@@ -12,11 +12,14 @@
 #SBATCH --output=delta_tb_%j.log
 
 
-module load cuda
+module purge # drop modules and explicitly load the ones needed
+             # (good job metadata and reproducibility)
 
-cd /jet/home/haofeng1/dlrm_comp
+module load anaconda3_gpu
+module list  # job documentation and metadata
+echo "job is starting on `hostname`"
+cd /u/haofeng1/dlrm_comp/
 source ~/.bashrc
-conda activate dlrm
 
 # set environment varibales
 
@@ -37,8 +40,8 @@ fi
 #echo $dlrm_extra_option
 
 dlrm_pt_bin="python ext_dist_test.py"
-raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
-processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
+raw_data="/projects/bcev/haofeng1/Kaggle/raw/train.txt"
+processed_data="/projects/bcev/haofeng1/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
 echo "run pytorch ..."
 
 mpirun -np $WORLD_SIZE $dlrm_pt_bin
