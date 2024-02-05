@@ -5,7 +5,7 @@
 #SBATCH -p gpuA100x4
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=4
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=240g
 #SBATCH -t 12:00:00
@@ -24,7 +24,6 @@ source ~/.bashrc
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=8
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -44,8 +43,21 @@ raw_data="/projects/bcev/haofeng1/Kaggle/raw/train.txt"
 processed_data="/projects/bcev/haofeng1/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
 echo "run pytorch ..."
 
-mpirun -np $WORLD_SIZE $dlrm_pt_bin
-
-$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
+$dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --arch-mlp-top="512-256-1" \
+--data-generation=dataset \
+--data-set=kaggle \
+--processed-data-file=$processed_data \
+--raw-data-file=$raw_data \
+--loss-function=bce \
+--round-targets=True \
+--learning-rate=0.1 \
+--nepochs=1 \
+--mini-batch-size=128 \
+--print-freq=1024 \
+--print-time \
+--test-freq=1024 \
+--test-mini-batch-size=16384 \
+--test-num-workers=16 \
+--use-gpu \
 
 echo "done"
