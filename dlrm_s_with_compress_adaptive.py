@@ -127,16 +127,28 @@ def sz_comp_decomp(data, r_eb, data_shape, data_type):
     a_eb = (data.max()-data.min()) * r_eb
     data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
     data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
-    return data_dcmp.astype(data_type)
+    return (data_dcmp.astype(data_type), data_ratio)
 
 error_bound = []
 early_stage = 0
 cycle_length = 0
+eb_constant = 1
+cr_table = [[] for i in range(26)]
+def record_cr(cr, i):
+    global cr_table
+    cr_table[i].append(cr)
+
+def print_cr():
+    global cr_table
+    for i, c in enumerate(cr_table):
+        print(f"table {i}, compression ratio is {sum(c)/len(c)}")
+
 def build_error_bound():
     print("Building error bound")
     global error_bound
     global cycle_length
     global early_stage
+    global eb_constant
     # Read environment variables
     tighten_eb_tables_str = os.environ.get("TIGHTEN_EB_TABLES", "")
     loosen_eb_tables_str = os.environ.get("LOOSEN_EB_TABLES", "")
@@ -153,6 +165,7 @@ def build_error_bound():
     tighten_eb_tables = [int(t) for t in tighten_eb_tables_str.split()]
     loosen_eb_tables = [int(t) for t in loosen_eb_tables_str.split()]
 
+    eb_constant = int(os.environ.get("EB_CONSTANT", "2048"))
 
     # Build the error_bound list
     num_tables = 26  # Replace with your actual number of tables
@@ -177,6 +190,8 @@ def stage_check(iter, decay_func):
     elif iter < early_stage and decay_func == "step":
         # step decay
         return 2.0  - 0.1 * int(10*iter/(early_stage))
+    elif iter < early_stage and decay_func == "constant":
+        return eb_constant
     else:
         return 1.0
     '''
@@ -764,14 +779,15 @@ class DLRM_Net(nn.Module):
         
         if not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
-            decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+            decay_func = str(os.environ.get("DECAY_FUNC"))
             eb_conf = stage_check(iter, decay_func)
             ly_devices = []
             for _ in ly:
                 ly_devices.append(_.device)
             for i in range(len(ly)):
-                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                new_ly, ly_i_ratio = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
                 ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
+                record_cr(ly_i_ratio, i)
         
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
@@ -884,8 +900,9 @@ class DLRM_Net(nn.Module):
             # Here I remove the `compressor`, just apply very simple implement
             
             for i in range(len(ly)):
-                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                new_ly, ly_i_ratio = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
                 ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
+                record_cr(ly_i_ratio, i)
 
             # compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
             # new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)
@@ -1938,6 +1955,7 @@ def run():
 
                             total_iter = 0
                             total_samp = 0
+                            print_cr()
 
                         # testing
                         if should_test:

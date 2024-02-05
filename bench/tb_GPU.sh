@@ -20,7 +20,7 @@ export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/open
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate new_dlrm
+conda activate dlrm
 
 # set environment varibales
 
@@ -33,8 +33,8 @@ fi
 #echo $dlrm_extra_option
 
 dlrm_pt_bin="python dlrm_s_pytorch.py"
-raw_data="/N/scratch/haofeng/criteo_TB/10M_processed/day"
-processed_data="/N/scratch/haofeng/criteo_TB/10M_processed/terabyte_processed.npz"
+raw_data="/N/scratch/haofeng/criteo_TB/raw/day"
+processed_data="/N/scratch/haofeng/criteo_TB/40M_processed/terabyte_processed.npz"
 
 echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set

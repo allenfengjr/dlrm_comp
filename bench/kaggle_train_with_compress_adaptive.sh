@@ -2,12 +2,12 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu-debug
+#SBATCH -p gpu
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=1:00:00
-#SBATCH --output=adaptive_%j.log 
+#SBATCH --time=24:00:00
+#SBATCH --output=adaptive_%j.log
 #SBATCH --mem=200G
 
 module load nvidia
@@ -50,14 +50,16 @@ echo "MASTER_ADDR="$MASTER_ADDR
 export TIGHTEN_EB_TABLES="2 3 9 11 15 20 23 25"
 export LOOSEN_EB_TABLES="8 16 19 21 22 24"
 # Custom error bound for the tables defined above
-export TIGHTEN_EB_VALUE="0.005"
-export LOOSEN_EB_VALUE="0.03"
+export TIGHTEN_EB_VALUE="0.01"
+export LOOSEN_EB_VALUE="0.05"
 # Base error bound for all other tables
-export BASE_ERROR_BOUND="0.02"
+export BASE_ERROR_BOUND="0.03"
+
+export EB_CONSTANT=2
 
 # Early Stage: 1024 * 64(total 306969 mini-batch as 128 batch size)
 export EARLY_STAGE=65536
-
+echo "ALL STEP CASE"
 # Compress/Uncompress every 4096 mini-batch
 export CYCLE_LEN_COMP=4096
 export CYCLE_LEN_NO_COMP=4096
@@ -67,8 +69,9 @@ dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
-echo "Baseline"
-
+echo $DECAY_FUNC
+echo $EARLY_STAGE
+echo $EB_CONSTANT
 echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
 # --arch-embedding-size=... (sparse feature sizes)
@@ -89,7 +92,7 @@ $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --a
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
-#--enable-compress \
+--enable-compress \
 #--enable-profiling
 
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log

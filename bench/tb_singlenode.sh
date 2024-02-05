@@ -19,7 +19,7 @@ export PATH=/N/soft/sles15/nvidia/21.5/Linux_x86_64/21.5/comm_libs/openmpi4/open
 module load cudatoolkit
 cd /N/u/haofeng/BigRed200/dlrm
 source ~/.bashrc
-conda activate new_dlrm
+conda activate dlrm
 
 # set environment varibales
 
@@ -32,8 +32,8 @@ fi
 #echo $dlrm_extra_option
 
 dlrm_pt_bin="python dlrm_s_pytorch.py"
-raw_data="/N/scratch/haofeng/criteo_TB/10M_processed/day"
-processed_data="/N/scratch/haofeng/criteo_TB/10M_processed/terabyte_processed.npz"
+raw_data="/N/scratch/haofeng/criteo_TB/raw/day"
+processed_data="/N/scratch/haofeng/criteo_TB/50M_processed/terabyte_processed.npz"
 
 echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
@@ -41,7 +41,7 @@ echo "run pytorch ..."
 # --arch-mlp-bot=... (the input to the first layer of bottom mlp)
 # mpirun -np $WORLD_SIZE
 $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch-mlp-top="512-512-256-1" \
---max-ind-range=40000000 \
+--max-ind-range=50000000 \
 --data-generation=dataset \
 --data-set=terabyte \
 --processed-data-file=$processed_data \
@@ -56,8 +56,10 @@ $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch
 --test-freq=1024 \
 --test-mini-batch-size=10240 \
 --memory-map \
---data-sub-sample-rate=0.875 \
+--data-sub-sample-rate=0.0 \
 --use-gpu \
+--save-model="/N/scratch/haofeng/TB_unlimit_original_model.pt"
+
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
 echo "done"

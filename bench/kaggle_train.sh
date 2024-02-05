@@ -2,12 +2,12 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu-debug
+#SBATCH -p gpu
 #SBATCH --nodes=1
-#SBATCH --gpus-per-node=4
+#SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=1:00:00
-#SBATCH --output=table_wise_ratio_%j.log 
+#SBATCH --time=24:00:00
+#SBATCH --output=kaggle_baseline_%j.log
 #SBATCH --mem=200G
 
 module load nvidia
@@ -45,14 +45,6 @@ master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_ADDR=$master_addr
 echo "MASTER_ADDR="$MASTER_ADDR
 
-# Define error bound
-# Indices of the tables with custom error bounds
-export CUSTOM_EB_TABLES="2 3 9 11 15 20 23 25"
-# Custom error bound for the tables defined above
-export CUSTOM_EB_VALUE="0.005"
-# Base error bound for all other tables
-export BASE_ERROR_BOUND="0.05"
-
 dlrm_pt_bin="python dlrm_s_pytorch.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
@@ -70,14 +62,14 @@ $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --a
 --round-targets=True \
 --learning-rate=0.1 \
 --nepochs=1 \
---mini-batch-size=1024 \
+--mini-batch-size=128 \
 --print-freq=1024 \
 --print-time \
+--print-wall-time \
 --test-freq=1024 \
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
---enable-compress
 
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
