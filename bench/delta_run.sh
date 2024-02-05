@@ -3,7 +3,7 @@
 #SBATCH --job-name=terabyte_train
 #SBATCH -A bcev-delta-gpu
 #SBATCH -p gpuA100x4
-#SBATCH -N 1
+#SBATCH --nodes=1
 #SBATCH --gpus-per-nodes=4
 #SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=64
