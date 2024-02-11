@@ -50,10 +50,10 @@ echo "MASTER_ADDR="$MASTER_ADDR
 export TIGHTEN_EB_TABLES="2 3 9 11 15 20 23 25"
 export LOOSEN_EB_TABLES="8 16 19 21 22 24"
 # Custom error bound for the tables defined above
-export TIGHTEN_EB_VALUE="0.01"
-export LOOSEN_EB_VALUE="0.05"
+export TIGHTEN_EB_VALUE="0.03"
+export LOOSEN_EB_VALUE="0.15"
 # Base error bound for all other tables
-export BASE_ERROR_BOUND="0.03"
+export BASE_ERROR_BOUND="0.09"
 
 export EB_CONSTANT=2
 
@@ -63,7 +63,7 @@ echo "ALL STEP CASE"
 # Compress/Uncompress every 4096 mini-batch
 export CYCLE_LEN_COMP=4096
 export CYCLE_LEN_NO_COMP=4096
-export DECAY_FUNC="log"
+export DECAY_FUNC="null"
 
 dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
