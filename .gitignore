@@ -139,4 +139,5 @@ cython_debug/
 
 # Personalize ignore file
 profile_results/
+run_kaggle_pt/
 logs/

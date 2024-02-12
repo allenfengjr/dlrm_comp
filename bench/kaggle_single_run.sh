@@ -1,6 +1,4 @@
 #!/bin/bash
-
-
 conda activate dlrm
 
 # Copyright (c) Meta Platforms, Inc. and affiliates.
