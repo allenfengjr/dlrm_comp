@@ -568,7 +568,8 @@ class DLRM_Net(nn.Module):
         # embeddings
         #with record_function("DLRM embedding forward"):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
-
+        ext_dist.print_all("rank is, ", ext_dist.my_rank, "ly is, ", ly)
+        
         # here we compress the data
         ly_devices = []
         for _ in ly:
