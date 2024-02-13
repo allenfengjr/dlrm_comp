@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=240g
 #SBATCH -t 12:00:00
-#SBATCH --output=delta_tb_%j.log
+#SBATCH --output=delta_tb_comp_%j.log
 
 
 module load anaconda3_gpu
@@ -42,6 +42,24 @@ processed_data="/projects/bcev/haofeng1/10M_processed/terabyte_processed.npz"
 
 # set compression variables
 export SZ_PATH="/u/haofeng1/SZ3/lib64/"
+export TIGHTEN_EB_TABLES="2 3 9 11 15 20 23 25"
+export LOOSEN_EB_TABLES="8 16 19 21 22 24"
+# Custom error bound for the tables defined above
+export TIGHTEN_EB_VALUE="0.03"
+export LOOSEN_EB_VALUE="0.15"
+# Base error bound for all other tables
+export BASE_ERROR_BOUND="0.09"
+
+export EB_CONSTANT=2
+
+# Early Stage: terabytes 65536*16
+export EARLY_STAGE=1048576
+echo "ALL STEP CASE"
+# Compress/Uncompress every 4096 mini-batch
+export CYCLE_LEN_COMP=4096
+export CYCLE_LEN_NO_COMP=4096
+export DECAY_FUNC="step"
+
 echo "run pytorch ..."
 
 mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch-mlp-top="512-512-256-1" \
