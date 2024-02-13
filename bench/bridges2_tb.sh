@@ -12,7 +12,7 @@ module load cuda
 
 cd /jet/home/haofeng1/dlrm_comp
 source ~/.bashrc
-conda activate dlrm
+conda activate fbgemm_gpu
 
 # set environment varibales
 
@@ -36,6 +36,8 @@ dlrm_pt_bin="python dlrm_s_pytorch.py"
 raw_data="/ocean/projects/asc200010p/haofeng1/10M_processed/day"
 processed_data="/ocean/projects/asc200010p/haofeng1/10M_processed/terabyte_processed.npz"
 
+# set compression variables
+export SZ_PATH="/jet/home/haofeng1/SZ3/lib64/"
 echo "run pytorch ..."
 echo "Starting Date and Time: $(date)"
 # WARNING: the following parameters will be set based on the data set
