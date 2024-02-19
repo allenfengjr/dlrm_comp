@@ -6,9 +6,8 @@
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=4
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=32
 #SBATCH --mem=240g
-#SBATCH -t 12:00:00
+#SBATCH -t 48:00:00
 #SBATCH --output=delta_tb_%j.log
 
 
@@ -62,6 +61,7 @@ mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot
 --memory-map \
 --data-sub-sample-rate=0.875 \
 --use-gpu \
+--save-model="/projects/bcev/haofeng1/tb_original.pt"
 
 $dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 

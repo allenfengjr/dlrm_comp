@@ -36,7 +36,7 @@ else
 fi
 #echo $dlrm_extra_option
 
-dlrm_pt_bin="python dlrm_s_pytorch.py"
+dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 raw_data="/projects/bcev/haofeng1/10M_processed/day"
 processed_data="/projects/bcev/haofeng1/10M_processed/terabyte_processed.npz"
 
