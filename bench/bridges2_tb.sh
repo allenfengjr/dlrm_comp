@@ -3,7 +3,7 @@
 #SBATCH --job-name=auto
 #SBATCH -p GPU-shared
 #SBATCH -N 1
-#SBATCH -t 1:00:00
+#SBATCH -t 48:00:00
 #SBATCH --output=bridge_tb_%j.log 
 #SBATCH --gpus=v100-32:4
 
@@ -17,7 +17,7 @@ conda activate fbgemm_gpu
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=4
+#export WORLD_SIZE=4
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -62,7 +62,7 @@ $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch
 --data-sub-sample-rate=0.875 \
 --use-gpu \
 --print-time \
-
+--save-model="/ocean/projects/asc200010p/haofeng1/tb_model.pt"
 
 $dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
