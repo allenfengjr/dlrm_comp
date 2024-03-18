@@ -4,7 +4,7 @@
 #SBATCH -A r00114
 #SBATCH -p general
 #SBATCH --nodes=1
-#SBATCH --time=72:00:00
+#SBATCH --time=4:00:00
 #SBATCH --output=TB_debug_multi_%j.log 
 #SBATCH --mem=240G
 

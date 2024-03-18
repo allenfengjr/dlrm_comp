@@ -631,11 +631,11 @@ class DLRM_Net(nn.Module):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
         # for y in ly:
         #     print(y.detach().cpu().numpy())
-        '''
+        
         if iter == 0:
             for e in self.emb_l:
                 print(e) # TypeError: object of type 'EmbeddingBag' has no len()
-        '''
+        
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
         # print(z.detach().cpu().numpy())

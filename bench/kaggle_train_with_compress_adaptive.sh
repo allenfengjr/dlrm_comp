@@ -7,7 +7,7 @@
 #SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=24:00:00
-#SBATCH --output=adaptive_%j.log
+#SBATCH --output=adaptive_compare_%j.log
 #SBATCH --mem=200G
 
 module load nvidia
@@ -55,7 +55,7 @@ export LOOSEN_EB_VALUE="0.15"
 # Base error bound for all other tables
 export BASE_ERROR_BOUND="0.09"
 
-export EB_CONSTANT=2
+export EB_CONSTANT=3
 
 # Early Stage: 1024 * 64(total 306969 mini-batch as 128 batch size)
 export EARLY_STAGE=65536
@@ -63,7 +63,7 @@ echo "ALL STEP CASE"
 # Compress/Uncompress every 4096 mini-batch
 export CYCLE_LEN_COMP=4096
 export CYCLE_LEN_NO_COMP=4096
-export DECAY_FUNC="null"
+export DECAY_FUNC="constant"
 
 dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"

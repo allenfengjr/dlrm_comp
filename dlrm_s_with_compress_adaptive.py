@@ -165,7 +165,7 @@ def build_error_bound():
     tighten_eb_tables = [int(t) for t in tighten_eb_tables_str.split()]
     loosen_eb_tables = [int(t) for t in loosen_eb_tables_str.split()]
 
-    eb_constant = int(os.environ.get("EB_CONSTANT", "2048"))
+    eb_constant = int(os.environ.get("EB_CONSTANT", "2"))
 
     # Build the error_bound list
     num_tables = 26  # Replace with your actual number of tables
@@ -177,23 +177,38 @@ def build_error_bound():
         error_bound[idx] = loosen_eb_value
 
 def stage_check(iter, decay_func):
-    # This will return a coefficient of error bound
-    # Linear
     global early_stage
     global cycle_length
-    if iter < early_stage and decay_func == "linear":
-        # linear decay
-        return 2.0 * (1 - iter/(2*early_stage))
-    elif iter < early_stage and decay_func == "log":
-        # log decay
-        return 2.0 * (1 - math.log(1 + iter/(early_stage), 4))
-    elif iter < early_stage and decay_func == "step":
-        # step decay
-        return 2.0  - 0.1 * int(10*iter/(early_stage))
-    elif iter < early_stage and decay_func == "constant":
-        return eb_constant
+    # Ensure eb_constant is not zero to avoid division by zero
+    if eb_constant == 0:
+        raise ValueError("eb_constant cannot be zero.")
+    
+    if iter < early_stage:
+        if decay_func == "linear":
+            # Adjusted linear decay to fit new requirements
+            return eb_constant * (1 - (iter / early_stage) * (1 - 1/eb_constant))
+        elif decay_func == "log":
+            # Adjusted log decay - ensuring it scales from 1 to 1/eb_constant
+            # This might need further adjustment based on desired log decay behavior
+            log_scale = 1 - math.log(1 + iter / early_stage * (math.e - 1), math.e)
+            return eb_constant * (log_scale * (1 - 1/eb_constant) + 1/eb_constant)
+        elif decay_func == "step":
+            # Adjusted step decay - ensuring it scales from 1 to 1/eb_constant
+            # Calculate the number of steps based on iter and early_stage
+            num_steps = int(10 * iter / early_stage)
+            # Calculate the decrement per step to scale from 1 to 1/eb_constant over 10 steps
+            decrement_per_step = (1 - 1/eb_constant) / 10
+            # Calculate the step_scale value by decrementing from 1 based on the current step
+            step_scale = 1 - num_steps * decrement_per_step
+            # Ensure step_scale does not go below 1/eb_constant
+            step_scale = max(step_scale, 1/eb_constant)
+            return eb_constant * step_scale
+        elif decay_func == "constant":
+            # Constant decay remains unchanged but ensures it doesn't exceed eb_constant
+            return eb_constant
     else:
         return 1.0
+
     '''
     # cyclic
     if (iter - early_stage)/(cycle_length*2) < cycle_length:

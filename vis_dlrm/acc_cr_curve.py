@@ -29,7 +29,7 @@ def plot_accuracy(log_files):
         plt.plot(accuracy, label=f'{file}')
     
     plt.title('Accuracy Curve')
-    plt.xlabel('Log File Index')
+    plt.xlabel('Iteration')
     plt.ylabel('Accuracy (%)')
     plt.legend()
     plt.savefig(acc_png)
@@ -48,7 +48,7 @@ def plot_compression_ratios(log_files):
         plt.plot(avg_ratios, label=f'{file}')
     
     plt.title('Average Compression Ratio Curve')
-    plt.xlabel('Group Index')
+    plt.xlabel('Iteration')
     plt.ylabel('Average Compression Ratio')
     plt.legend()
     plt.savefig(cr_png)
@@ -56,19 +56,20 @@ def plot_compression_ratios(log_files):
 
 
 # Example usage
-
-log_files = ['/N/u/haofeng/BigRed200/dlrm/decay_logs/new_constant_eb_2.log',
-             '/N/u/haofeng/BigRed200/dlrm/decay_logs/all_decay.log',
-             '/N/u/haofeng/BigRed200/dlrm/decay_logs/new_step.log']  # Replace with your log file paths
+'''
+log_files = ['/N/u/haofeng/BigRed200/dlrm/decay_logs/step_2.log',
+             '/N/u/haofeng/BigRed200/dlrm/decay_logs/step_3.log',
+             '/N/u/haofeng/BigRed200/dlrm/decay_logs/constant_2.log',
+             '/N/u/haofeng/BigRed200/dlrm/decay_logs/constant_3.log']  # Replace with your log file paths
              
-
-acc_png = "/N/u/haofeng/BigRed200/dlrm/decay_logs/new_decay_acc.png"
-cr_png = "/N/u/haofeng/BigRed200/dlrm/decay_logs/new_decay_avg_cr.png"
 '''
+acc_png = "/N/u/haofeng/BigRed200/dlrm/decay_logs/decay_ls_acc.png"
+cr_png = "/N/u/haofeng/BigRed200/dlrm/decay_logs/decay_ls_avg_cr.png"
 
 
-log_files = ['/N/u/haofeng/BigRed200/dlrm/decay_logs/eb_2_constant_65536_5e-3.log', 
-             '/N/u/haofeng/BigRed200/dlrm/decay_logs/decay_step_65536_5e-3.log']  # Replace with your log file paths
-'''
+
+log_files = ['/N/u/haofeng/BigRed200/dlrm/decay_logs/decay_short.log', 
+             '/N/u/haofeng/BigRed200/dlrm/decay_logs/decay_long.log']  # Replace with your log file paths
+
 plot_accuracy(log_files)
 plot_compression_ratios(log_files)
