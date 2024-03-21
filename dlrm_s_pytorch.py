@@ -727,14 +727,14 @@ class DLRM_Net(nn.Module):
         # debug prints
         # print(ly)
         
-        '''
-        if iter%1024==0:
-            savepath = "/N/scratch/haofeng/TB_emb_32"
+        
+        if iter % 1024 == 0:
+            savepath = "/scratch/bcev/haofeng1/TB_emb"
             for i,e in enumerate(ly):
-                outputpath = f"{savepath}/embedding_output_vector_table_{i}_epoch_{epoch}_iter_{iter}.bin"
+                outputpath = f"{savepath}/EMB_{i}_iter_{iter/1024}.bin"
                 narr = e.cpu().detach().numpy()
                 narr.tofile(outputpath)
-        '''
+        
         # butterfly shuffle (implemented inefficiently for now)
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each device. We would like to obtain partial results

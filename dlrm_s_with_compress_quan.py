@@ -63,6 +63,7 @@ import string
 import sys
 import time
 import os
+import math
 
 # onnx
 # The onnx import causes deprecation warnings every time workers
@@ -107,6 +108,8 @@ with warnings.catch_warnings():
     except ImportError as error:
         print("Unable to import onnx. ", error)
 
+# add system path
+sys.path.append("/u/haofeng1/SZ3/tools/pysz")
 import compressor
 from pysz import SZ
 import zfpy
@@ -120,19 +123,40 @@ import platform
 
 # exc = getattr(builtins, "IOError", "FileNotFoundError")
 # my_emb_comp = compressor.emb_compressor()
+
+
 def sz_comp_decomp(data, r_eb, data_shape, data_type):
-    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
-    sz = SZ("/N/u/haofeng/BigRed200/SZ3_build/lib64/libSZ3c.{}".format(lib_extention))
     a_eb = (data.max()-data.min()) * r_eb
     data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
     data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
-    return data_dcmp.astype(data_type)
+    return (data_dcmp.astype(data_type), data_ratio)
 
 error_bound = []
+early_stage = 0
+cycle_length = 0
+eb_constant = 1
+cr_table = [[] for i in range(26)]
+def quantize_and_dequantize_data(x, eb):
+    # Ensure calculations are performed on the same device as x (GPU in this case)
+    eb = torch.tensor(eb, device=x.device)
+    # Quantization
+    x.data = (x.data / (2*eb)).round() * (2*eb)  # Directly modify the tensor data
+
+def record_cr(cr, i):
+    global cr_table
+    cr_table[i].append(cr)
+
+def print_cr():
+    global cr_table
+    for i, c in enumerate(cr_table):
+        print(f"table {i}, compression ratio is {sum(c)/len(c)}")
 
 def build_error_bound():
+    print("Building error bound")
     global error_bound
-    
+    global cycle_length
+    global early_stage
+    global eb_constant
     # Read environment variables
     tighten_eb_tables_str = os.environ.get("TIGHTEN_EB_TABLES", "")
     loosen_eb_tables_str = os.environ.get("LOOSEN_EB_TABLES", "")
@@ -141,32 +165,70 @@ def build_error_bound():
     loosen_eb_value = float(os.environ.get("LOOSEN_EB_VALUE", "0.2"))
 
     base_error_bound = float(os.environ.get("BASE_ERROR_BOUND", "0.01"))
+    early_stage = int(os.environ.get("EARLY_STAGE", "65536"))
+    cycle_length = int(os.environ.get("CYCLE_LEN_COMP", "2048"))
 
 
     # Convert string to list of integers
     tighten_eb_tables = [int(t) for t in tighten_eb_tables_str.split()]
     loosen_eb_tables = [int(t) for t in loosen_eb_tables_str.split()]
 
+    eb_constant = int(os.environ.get("EB_CONSTANT", "2"))
 
     # Build the error_bound list
     num_tables = 26  # Replace with your actual number of tables
     error_bound = [base_error_bound] * num_tables
-    '''
-    use global
 
     for idx in tighten_eb_tables:
         error_bound[idx] = tighten_eb_value
     for idx in loosen_eb_tables:
         error_bound[idx] = loosen_eb_value
+
+def stage_check(iter, decay_func):
+    global early_stage
+    global cycle_length
+    # Ensure eb_constant is not zero to avoid division by zero
+    if eb_constant == 0:
+        raise ValueError("eb_constant cannot be zero.")
+    
+    if iter < early_stage:
+        if decay_func == "linear":
+            # Adjusted linear decay to fit new requirements
+            return eb_constant * (1 - (iter / early_stage) * (1 - 1/eb_constant))
+        elif decay_func == "log":
+            # Adjusted log decay - ensuring it scales from 1 to 1/eb_constant
+            # This might need further adjustment based on desired log decay behavior
+            log_scale = 1 - math.log(1 + iter / early_stage * (math.e - 1), math.e)
+            return eb_constant * (log_scale * (1 - 1/eb_constant) + 1/eb_constant)
+        elif decay_func == "step":
+            # Adjusted step decay - ensuring it scales from 1 to 1/eb_constant
+            # Calculate the number of steps based on iter and early_stage
+            num_steps = int(10 * iter / early_stage)
+            # Calculate the decrement per step to scale from 1 to 1/eb_constant over 10 steps
+            decrement_per_step = (1 - 1/eb_constant) / 10
+            # Calculate the step_scale value by decrementing from 1 based on the current step
+            step_scale = 1 - num_steps * decrement_per_step
+            # Ensure step_scale does not go below 1/eb_constant
+            step_scale = max(step_scale, 1/eb_constant)
+            return eb_constant * step_scale
+        elif decay_func == "constant":
+            # Constant decay remains unchanged but ensures it doesn't exceed eb_constant
+            return eb_constant
+    else:
+        return 1.0
+
     '''
-
-
-def stage_check(iter, cycle_length, split_point):
-    # This will return 'compression stage' or 'originl stage'
-    if (iter%cycle_length) < split_point:
-        return 'compression_stage'
-    return 'original_stage'
-
+    # cyclic
+    if (iter - early_stage)/(cycle_length*2) < cycle_length:
+            return 1
+        else:
+            return 0.8 # Should be adaptive
+    '''
+    
+    
+def adaptive_sample(sample_data):
+    # This function should use a sample data to check the 
+    pass
 
 def time_wrap(use_gpu):
     if use_gpu:
@@ -737,7 +799,19 @@ class DLRM_Net(nn.Module):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
         # for y in ly:
         #     print(y.detach().cpu().numpy())
-
+        
+        if not is_test:
+            ly_data = [_.detach().cpu().numpy() for _ in ly]
+            decay_func = str(os.environ.get("DECAY_FUNC"))
+            eb_conf = stage_check(iter, decay_func)
+            ly_devices = []
+            for _ in ly:
+                ly_devices.append(_.device)
+            for i in range(len(ly)):
+                new_ly, ly_i_ratio = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
+                record_cr(ly_i_ratio, i)
+        
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
         # print(z.detach().cpu().numpy())
@@ -828,65 +902,15 @@ class DLRM_Net(nn.Module):
         ly_devices = []
         for _ in ly:
             ly_devices.append(_.device)
-        # enable_compress = (iter % 1024) < 256 # cyclic compress
-        enable_compress = True
+        enable_compress = True #(iter % 1024) < 256 # cyclic compress
+        # eb_conf = stage_check(iter, "linear")
+        decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+        eb_conf = stage_check(iter, decay_func)
         if enable_compress and not is_test:
-            ly_data = [_.detach().cpu().numpy() for _ in ly]
-            #ly_data = torch.stack(ly_data).numpy()
-            data_type = ly_data[0].dtype
-            data_shape = ly_data[0].shape
-            #r_tolerance is not a global value
-            r_tolerance = args.error_bound
-            # Here I remove the `compressor`, just apply very simple implement
-            
+            # do quantization and dequantization instead
             for i in range(len(ly)):
-                new_ly = sz_comp_decomp(data=ly_data[i], r_eb=error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
-                ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
-                
-
-            # compressed_data, compression_ratio = my_emb_comp.compress(compressor=args.compressor,format="flatten",data=ly_data,tolerance=r_tolerance)
-            # new_ly = my_emb_comp.decompress(args.compressor, "flatten", compressed_data, data_shape, data_type)
-            # print('real new_ly dtype, ', new_ly.dtype)
+                quantize_and_dequantize_data(ly[i], eb_conf * error_bound[i])
             
-            #print("Compression ratio,", compression_ratio)
-            '''
-            if iter == 0:
-                print("Compression method: %s, Parameters: %s",args.compressor, r_tolerance)
-            if iter % 1024 == 0:
-                print("Compression ratio, ", compression_ratio)
-                for i in range(len(ly_data)):
-                    tmp_delta = ly_data[i] - new_ly[i]
-                    self.dump_data(tmp_delta, "numpy", savepath, str("sampleDelta_compressor_"+args.compressor+"_eb_"+str(r_tolerance)+"_iter_"+str(iter)+"_table_"+str(i)))
-                    print("L2 norm: ", LA.norm(tmp_delta))
-                print("Before compression")
-                print(ly_data[1])
-                print("After compression")
-                print(new_ly[1])
-                print("Compression difference")
-                print(ly_data[1]-new_ly[1])
-                print("After assign value")
-                print(ly[1].data)
-            #my_emb_comp.recordRatio(name="ZFP_table_wise_seperate",ratio=compression_ratio)
-
-        # dump embedding vectors
-        if args.save_embedding and iter==0:
-            ly_data = [_.detach().cpu() for _ in ly]
-            ly_data = torch.stack(ly_data).numpy()
-            for i,d in enumerate(ly_data):
-                self.dump_data(d,"numpy",savepath,str("2D_table_"+str(i)+"_Epoch_"+str(epoch)))
-            self.dump_data(ly_data.flatten(),"numpy",savepath,"1D_"+"Epoch_"+str(epoch))
-            for i,d in enumerate(ly_data.transpose([1,0,2])):
-                if i < 4 :
-                    self.dump_data(d,"numpy",savepath,str("2D_sample_"+str(i)+"_Epoch_"+str(epoch)))
-        # debug prints
-        # print(ly)
-        
-        if iter%100==0:
-            for i,e in enumerate(ly):
-                outputpath = savepath+"/embedding_outputs/embedding_output_vector_"+str(i)+"_batch_"+str(int(iter/100))+".bin"
-                narr = e.cpu().detach().numpy()
-                narr.tofile(outputpath)
-        '''
         # butterfly shuffle (implemented inefficiently for now)
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each device. We would like to obtain partial results
@@ -1237,7 +1261,7 @@ def run():
     parser.add_argument("--savepath",type=str, default="/N/scratch/haofeng/")
     parser.add_argument("--save-embedding",action="store_true",default=False)
     parser.add_argument("--enable-compress", action="store_true", default=False)
-    parser.add_argument("--compressor", type=str, default="SZ_compressor")
+    parser.add_argument("--compressor", type=str, default="ZFP_compressor")
     parser.add_argument("--layout", type=str, default="table-wise-seperate")
     parser.add_argument("--error-bound", type=float, default=1e-2)
     global args
@@ -1895,6 +1919,7 @@ def run():
 
                             total_iter = 0
                             total_samp = 0
+                            print_cr()
 
                         # testing
                         if should_test:
@@ -2114,6 +2139,10 @@ def run():
 
 
 if __name__ == "__main__":
+    print("start")
+    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
+    sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
+    sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
     build_error_bound()
     print("error bounds are, ", error_bound)
     run()

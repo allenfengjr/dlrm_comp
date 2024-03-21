@@ -108,6 +108,8 @@ with warnings.catch_warnings():
     except ImportError as error:
         print("Unable to import onnx. ", error)
 
+# add system path
+sys.path.append("/u/haofeng1/SZ3/tools/pysz")
 import compressor
 from pysz import SZ
 import zfpy

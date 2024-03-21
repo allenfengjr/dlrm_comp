@@ -1,15 +1,15 @@
 #!/bin/bash
 
-#SBATCH --job-name=terabyte_train
+#SBATCH --job-name=comp_tb_e2e
 #SBATCH -A bcev-delta-gpu
 #SBATCH -p gpuA100x4
 #SBATCH --nodes=1
-#SBATCH --gpus-per-node=4
+#SBATCH --gpus-per-node=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=240g
-#SBATCH -t 12:00:00
-#SBATCH --output=delta_tb_comp_%j.log
+#SBATCH -t 1:00:00
+#SBATCH --output=delta_tb_comp_2gpu_%j.log
 
 
 module load anaconda3_gpu
@@ -21,7 +21,7 @@ source ~/.bashrc
 # set environment varibales
 
 export MASTER_PORT=27149
-export WORLD_SIZE=4
+# export WORLD_SIZE=4
 export DLRM_ALLTOALL_IMPL="alltoall"
 echo "WORLD_SIZE="$WORLD_SIZE
 echo "NODELIST="${SLURM_NODELIST}
@@ -36,7 +36,7 @@ else
 fi
 #echo $dlrm_extra_option
 
-dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
+dlrm_pt_bin="python dlrm_s_with_compress_quan.py"
 raw_data="/projects/bcev/haofeng1/10M_processed/day"
 processed_data="/projects/bcev/haofeng1/10M_processed/terabyte_processed.npz"
 
@@ -62,7 +62,7 @@ export DECAY_FUNC="step"
 
 echo "run pytorch ..."
 
-mpirun -np $WORLD_SIZE $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch-mlp-top="512-512-256-1" \
+$dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch-mlp-top="512-512-256-1" \
 --max-ind-range=10000000 \
 --data-generation=dataset \
 --data-set=terabyte \
