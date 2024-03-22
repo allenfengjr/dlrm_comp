@@ -8,7 +8,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=240g
-#SBATCH -t 1:00:00
+#SBATCH -t 48:00:00
 #SBATCH --output=delta_tb_comp_2gpu_%j.log
 
 

@@ -4,7 +4,7 @@
 #SBATCH -A bcev-delta-gpu
 #SBATCH -p gpuA100x4
 #SBATCH --nodes=1
-#SBATCH --gpus-per-node=2
+#SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem=240g
 #SBATCH -t 48:00:00
@@ -60,7 +60,7 @@ $dlrm_pt_bin --arch-sparse-feature-size=64 --arch-mlp-bot="13-512-256-64" --arch
 --memory-map \
 --data-sub-sample-rate=0.875 \
 --use-gpu \
---save-model="/projects/bcev/haofeng1/tb_original.pt"
+#--save-model="/projects/bcev/haofeng1/tb_original.pt"
 
 $dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 

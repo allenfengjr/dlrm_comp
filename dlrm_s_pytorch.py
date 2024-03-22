@@ -728,10 +728,10 @@ class DLRM_Net(nn.Module):
         # print(ly)
         
         
-        if iter % 1024 == 0:
+        if iter % 4096 == 0:
             savepath = "/scratch/bcev/haofeng1/TB_emb"
             for i,e in enumerate(ly):
-                outputpath = f"{savepath}/EMB_{i}_iter_{iter/1024}.bin"
+                outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/4096)}.bin"
                 narr = e.cpu().detach().numpy()
                 narr.tofile(outputpath)
         
@@ -1782,7 +1782,7 @@ def run():
                                 ] = optimizer.state_dict()
                                 print("Saving model to {}".format(args.save_model))
                                 torch.save(model_metrics_dict, args.save_model)
-                                exit() # just exit
+                                # exit() # just exit
 
                             if args.mlperf_logging:
                                 mlperf_logger.barrier()

@@ -138,8 +138,9 @@ eb_constant = 1
 cr_table = [[] for i in range(26)]
 def quantize_and_dequantize_data(x, eb):
     # Ensure calculations are performed on the same device as x (GPU in this case)
-    eb = torch.tensor(eb, device=x.device)
+    # eb = torch.tensor(eb, device=x.device)
     # Quantization
+    eb = eb * (x.max()-x.min()).item()
     x.data = (x.data / (2*eb)).round() * (2*eb)  # Directly modify the tensor data
 
 def record_cr(cr, i):
@@ -799,7 +800,15 @@ class DLRM_Net(nn.Module):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
         # for y in ly:
         #     print(y.detach().cpu().numpy())
-        
+        enable_compress = True #(iter % 1024) < 256 # cyclic compress
+        # eb_conf = stage_check(iter, "linear")
+        decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+        eb_conf = stage_check(iter, decay_func)
+        if enable_compress and not is_test:
+            # do quantization and dequantization instead
+            for i in range(len(ly)):
+                quantize_and_dequantize_data(ly[i], eb_conf * error_bound[i])
+        '''
         if not is_test:
             ly_data = [_.detach().cpu().numpy() for _ in ly]
             decay_func = str(os.environ.get("DECAY_FUNC"))
@@ -811,7 +820,7 @@ class DLRM_Net(nn.Module):
                 new_ly, ly_i_ratio = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
                 ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
                 record_cr(ly_i_ratio, i)
-        
+        '''
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
         # print(z.detach().cpu().numpy())
@@ -1919,7 +1928,7 @@ def run():
 
                             total_iter = 0
                             total_samp = 0
-                            print_cr()
+                            # print_cr()
 
                         # testing
                         if should_test:
