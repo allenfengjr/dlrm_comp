@@ -9,7 +9,7 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=240g
 #SBATCH -t 48:00:00
-#SBATCH --output=delta_tb_comp_2gpu_%j.log
+#SBATCH --output=delta_tb_fp8_%j.log
 
 
 module load anaconda3_gpu
@@ -36,7 +36,7 @@ else
 fi
 #echo $dlrm_extra_option
 
-dlrm_pt_bin="python dlrm_s_with_compress_quan.py"
+dlrm_pt_bin="python dlrm_s_pyquan.py"
 raw_data="/projects/bcev/haofeng1/10M_processed/day"
 processed_data="/projects/bcev/haofeng1/10M_processed/terabyte_processed.npz"
 

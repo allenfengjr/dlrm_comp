@@ -62,6 +62,8 @@ import json
 import string
 import sys
 import time
+import os
+import math
 
 # onnx
 # The onnx import causes deprecation warnings every time workers
@@ -77,6 +79,7 @@ import mlperf_logger
 
 # numpy
 import numpy as np
+from numpy import linalg as LA
 import sklearn.metrics
 
 # pytorch
@@ -91,7 +94,7 @@ from torch.nn.parameter import Parameter
 from torch.optim.lr_scheduler import _LRScheduler
 import optim.rwsadagrad as RowWiseSparseAdagrad
 from torch.utils.tensorboard import SummaryWriter
-
+import torch.profiler 
 # mixed-dimension trick
 from tricks.md_embedding_bag import PrEmbeddingBag, md_solver
 
@@ -105,13 +108,128 @@ with warnings.catch_warnings():
     except ImportError as error:
         print("Unable to import onnx. ", error)
 
+# add system path
+sys.path.append("/u/haofeng1/SZ3/tools/pysz")
+import compressor
+from pysz import SZ
+import zfpy
 import torch.profiler
+import platform
+
 
 # from torchviz import make_dot
 # import torch.nn.functional as Functional
 # from torch.nn.parameter import Parameter
 
-exc = getattr(builtins, "IOError", "FileNotFoundError")
+# exc = getattr(builtins, "IOError", "FileNotFoundError")
+# my_emb_comp = compressor.emb_compressor()
+
+
+def sz_comp_decomp(data, r_eb, data_shape, data_type):
+    a_eb = (data.max()-data.min()) * r_eb
+    data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
+    data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
+    return (data_dcmp.astype(data_type), data_ratio)
+
+error_bound = []
+early_stage = 0
+cycle_length = 0
+eb_constant = 1
+cr_table = [[] for i in range(26)]
+def quantize_and_dequantize_data(x, eb):
+    # Ensure calculations are performed on the same device as x (GPU in this case)
+    # eb = torch.tensor(eb, device=x.device)
+    # Quantization
+    eb = eb * (x.max()-x.min()).item()
+    x.data = (x.data / (2*eb)).round() * (2*eb)  # Directly modify the tensor data
+
+def record_cr(cr, i):
+    global cr_table
+    cr_table[i].append(cr)
+
+def print_cr():
+    global cr_table
+    for i, c in enumerate(cr_table):
+        print(f"table {i}, compression ratio is {sum(c)/len(c)}")
+
+def build_error_bound():
+    print("Building error bound")
+    global error_bound
+    global cycle_length
+    global early_stage
+    global eb_constant
+    # Read environment variables
+    tighten_eb_tables_str = os.environ.get("TIGHTEN_EB_TABLES", "")
+    loosen_eb_tables_str = os.environ.get("LOOSEN_EB_TABLES", "")
+
+    tighten_eb_value = float(os.environ.get("TIGHTEN_EB_VALUE", "0.05"))
+    loosen_eb_value = float(os.environ.get("LOOSEN_EB_VALUE", "0.2"))
+
+    base_error_bound = float(os.environ.get("BASE_ERROR_BOUND", "0.01"))
+    early_stage = int(os.environ.get("EARLY_STAGE", "65536"))
+    cycle_length = int(os.environ.get("CYCLE_LEN_COMP", "2048"))
+
+
+    # Convert string to list of integers
+    tighten_eb_tables = [int(t) for t in tighten_eb_tables_str.split()]
+    loosen_eb_tables = [int(t) for t in loosen_eb_tables_str.split()]
+
+    eb_constant = int(os.environ.get("EB_CONSTANT", "2"))
+
+    # Build the error_bound list
+    num_tables = 26  # Replace with your actual number of tables
+    error_bound = [base_error_bound] * num_tables
+
+    for idx in tighten_eb_tables:
+        error_bound[idx] = tighten_eb_value
+    for idx in loosen_eb_tables:
+        error_bound[idx] = loosen_eb_value
+
+def stage_check(iter, decay_func):
+    global early_stage
+    global cycle_length
+    # Ensure eb_constant is not zero to avoid division by zero
+    if eb_constant == 0:
+        raise ValueError("eb_constant cannot be zero.")
+    
+    if iter < early_stage:
+        if decay_func == "linear":
+            # Adjusted linear decay to fit new requirements
+            return eb_constant * (1 - (iter / early_stage) * (1 - 1/eb_constant))
+        elif decay_func == "log":
+            # Adjusted log decay - ensuring it scales from 1 to 1/eb_constant
+            # This might need further adjustment based on desired log decay behavior
+            log_scale = 1 - math.log(1 + iter / early_stage * (math.e - 1), math.e)
+            return eb_constant * (log_scale * (1 - 1/eb_constant) + 1/eb_constant)
+        elif decay_func == "step":
+            # Adjusted step decay - ensuring it scales from 1 to 1/eb_constant
+            # Calculate the number of steps based on iter and early_stage
+            num_steps = int(10 * iter / early_stage)
+            # Calculate the decrement per step to scale from 1 to 1/eb_constant over 10 steps
+            decrement_per_step = (1 - 1/eb_constant) / 10
+            # Calculate the step_scale value by decrementing from 1 based on the current step
+            step_scale = 1 - num_steps * decrement_per_step
+            # Ensure step_scale does not go below 1/eb_constant
+            step_scale = max(step_scale, 1/eb_constant)
+            return eb_constant * step_scale
+        elif decay_func == "constant":
+            # Constant decay remains unchanged but ensures it doesn't exceed eb_constant
+            return eb_constant
+    else:
+        return 1.0
+
+    '''
+    # cyclic
+    if (iter - early_stage)/(cycle_length*2) < cycle_length:
+            return 1
+        else:
+            return 0.8 # Should be adaptive
+    '''
+    
+    
+def adaptive_sample(sample_data):
+    # This function should use a sample data to check the 
+    pass
 
 def time_wrap(use_gpu):
     if use_gpu:
@@ -119,7 +237,7 @@ def time_wrap(use_gpu):
     return time.time()
 
 
-def dlrm_wrap(X, iter, epoch, lS_o, lS_i, use_gpu, device, ndevices=1):
+def dlrm_wrap(X, iter, epoch, is_test, lS_o, lS_i, use_gpu, device, ndevices=1):
     #with record_function("DLRM forward"):
     if use_gpu:  # .cuda()
         # lS_i can be either a list of tensors or a stacked tensor.
@@ -135,7 +253,7 @@ def dlrm_wrap(X, iter, epoch, lS_o, lS_i, use_gpu, device, ndevices=1):
                 if isinstance(lS_o, list)
                 else lS_o.to(device)
             )
-    return dlrm(X.to(device), iter, epoch, lS_o, lS_i)
+    return dlrm(X.to(device), iter, epoch, is_test, lS_o, lS_i)
 
 
 def loss_fn_wrap(Z, T, use_gpu, device):
@@ -290,9 +408,9 @@ class DLRM_Net(nn.Module):
         print(self.emb_l)
         for i,e in enumerate(self.emb_l):
             print(e.weight.shape)
-            # narr = e.weight.cpu().detach().numpy()
-            # tablepath = savepath+"/embedding_tables/embedding_layer_"+str(i)+"_epoch_"+str(idx)+".bin"
-            # narr.tofile(tablepath)
+            narr = e.weight.cpu().detach().numpy()
+            tablepath = savepath+"/embedding_tables/embedding_layer_"+str(i)+"_epoch_"+str(idx)+".bin"
+            narr.tofile(tablepath)
         return 
 
     def dump_data(self,data, type, savepath, filename):
@@ -372,6 +490,7 @@ class DLRM_Net(nn.Module):
                 self.n_local_emb, self.n_emb_per_rank = ext_dist.get_split_lengths(
                     n_emb
                 )
+                # self.n_emb_per_rank will return cnt
                 self.local_emb_slice = ext_dist.get_my_slice(n_emb)
                 self.local_emb_indices = list(range(n_emb))[self.local_emb_slice]
 
@@ -467,9 +586,8 @@ class DLRM_Net(nn.Module):
                     sparse_offset_group_batch,
                     per_sample_weights=per_sample_weights,
                 )
-                # may change V to float16
+
                 ly.append(V)
-                # ly.append(V.to(torch.float16))
 
         # print(ly)
         return ly
@@ -529,19 +647,19 @@ class DLRM_Net(nn.Module):
 
         return R
 
-    def forward(self, dense_x, iter, epoch, lS_o, lS_i):
+    def forward(self, dense_x, iter, epoch, is_test, lS_o, lS_i):
         # edit to check
         if ext_dist.my_size > 1:
             # multi-node multi-device run
-            return self.distributed_forward(dense_x, iter, epoch, lS_o, lS_i)
+            return self.distributed_forward(dense_x, iter, epoch, is_test, lS_o, lS_i)
         elif self.ndevices <= 1:
             # single device run
-            return self.sequential_forward(dense_x, iter, epoch, lS_o, lS_i)
+            return self.sequential_forward(dense_x, iter, epoch, is_test, lS_o, lS_i)
         else:
             # single-node multi-device run
-            return self.parallel_forward(dense_x, iter, epoch, lS_o, lS_i)
+            return self.parallel_forward(dense_x, iter, epoch, is_test, lS_o, lS_i)
 
-    def distributed_forward(self, dense_x, iter, epoch, lS_o, lS_i):
+    def distributed_forward(self, dense_x, iter, epoch, is_test, lS_o, lS_i):
         batch_size = dense_x.size()[0]
         # WARNING: # of ranks must be <= batch size in distributed_forward call
         if batch_size < ext_dist.my_size:
@@ -567,14 +685,62 @@ class DLRM_Net(nn.Module):
         # embeddings
         #with record_function("DLRM embedding forward"):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
+        print("ly device and shape")
+        for i in ly:
+            print(i.shape)
+            print(i.device)
+        # This should be calculated first without any communciation
+        # metadata of metadata
+        table_send_cnt = []
+        table_rec_cnt = []
+        communication_size = np.zeros(ext_dist.my_size)
+        local_communication_size = np.zeros(ext_dist.my_size)
+        print("Number of embedding table is, ", len(ly))
+        for i in ly:
+            ext_dist.print_all(i.device)
+            ext_dist.print_all(i.shape)
+        
+
+        # split the data
+        uncompressed_data = [] 
+        compressed_data = []
+        tolerance = 1e-2
+        for i in range(len(ly)):
+            # split dimension is 0
+            dimension = 0
+            # return a tupple
+            print("world size is, ", ext_dist.my_size)
+            uncompressed_data.append(compressor.split_tensor(ly[i], ext_dist.my_size, dimension))
+            # for simple compression, hardcode ZFP
+            compressed_data.append([])
+            for j in range(len(uncompressed_data[i])):
+                s = uncompressed_data[i][j]
+                s = s.detach().cpu().numpy()
+                a_tolerance = (s.max()-s.min()) * tolerance
+                tmp_c = zfpy.compress_numpy(s,tolerance = a_tolerance)
+                compressed_data[i].append(tmp_c)
+                local_communication_size[j] = len(tmp_c)
+                print(local_communication_size)
+        print("communication size, ", communication_size)
+        print("communication size, ", local_communication_size)
+        print("n_emb_per_rank is, ", self.n_emb_per_rank)
+
+        meta_a2a_req = ext_dist.alltoall(local_communication_size, [1]*ext_dist.my_size)
+        communication_size = meta_a2a_req.wait()
+
+        '''    
+        for i in range(len(ly)):
+            ly_data = [_.detach().cpu().numpy() for _ in ly]
+            ly[i] = torch.ops.fbgemm.FloatToHFP8Quantized(ly[i])
+            qmax = 255
+            qmin = 0
+            scale = 0.1/ (qmax - qmin) # toy setting
+            ly[i] = torch.quantize_per_tensor(ly[i], scale=scale, zero_point=0, dtype=torch.quint8)
         '''
-        if iter%1024*32==0:
-            savepath = "/N/scratch/haofeng/TB_emb"
-            for i,e in enumerate(ly):
-                outputpath = savepath+"/embedding_output_vector_"+str(ext_dist.my_rank)+"_"+str(i)+"_batch_"+str(int(iter/1024))+".bin"
-                narr = e.cpu().detach().numpy()
-                narr.tofile(outputpath)
-        '''
+        if ext_dist.my_rank == 0:
+            print("before alltoall")
+            print("ly len is,", len(ly))
+            print(ly[1])
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each rank. We would like to obtain partial results
         # corresponding to all embedding lookups, but part of the batch on each rank.
@@ -583,30 +749,33 @@ class DLRM_Net(nn.Module):
         if len(self.emb_l) != len(ly):
             sys.exit("ERROR: corrupted intermediate result in distributed_forward call")
 
-        # NOTE: ly is not global variance here, it is the list of tensor on CURRENT rank's device
-        # self.n_emb_per_rank is a global variance, this is okay to use
-        # ext_dist.print_all("rank is, ", ext_dist.my_rank, "ly is, ", ly)
-
-        '''
-        I can even directly apply a PyTorch all_to_all_single for elegence
-        
-        compressed, data_size = compresssion_layer(ly,device_id, eb,...)
-        metadata_alltoall ==> just ignore this?
-        a2a_req = alltoall_v
-        decompressed_ly = decompression_layer(comp, device_id, shape,...)
-
-        NOTE: ly need to be replace later.
-        '''
+        # Transfer ly here, let `ly_c` be the Tensor after compression
+        print("n_emb_per_rank is, ", self.n_emb_per_rank)
         a2a_req = ext_dist.alltoall(ly, self.n_emb_per_rank)
+        print("n_emb_per_rank is, ", self.n_emb_per_rank)
+        # a2a_v_req = ext_dist.alltoall_v(ly, self.n_emb_per_rank)
         #with record_function("DLRM bottom mlp forward"):
         x = self.apply_mlp(dense_x, self.bot_l)
+        # after a2a_req.wait(), ly is the Tensor we need to apply on each rank
         ly = a2a_req.wait()
         ly = list(ly)
 
+        '''
+        for i in range(len(ly)):
+            #ly[i] = torch.ops.fbgemm.HFP8QuantizedToFloat(ly[i])
+            ly[i] = ly[i].dequantize()
+            print(ly[i].dtype)
+        '''
+        
+        '''
+        if ext_dist.my_rank:
+            print("after alltoall")
+            print(ly)
+            print(ly[0])
+        '''
         # interactions
         #with record_function("DLRM interaction forward"):
         z = self.interact_features(x, ly)
-        # ext_dist.print_all("My rank, ", ext_dist.my_rank, "z grad, ",z.grad)
 
         # top mlp
         #with record_function("DLRM top nlp forward"):
@@ -620,7 +789,7 @@ class DLRM_Net(nn.Module):
 
         return z
 
-    def sequential_forward(self, dense_x, iter, epoch, lS_o, lS_i):
+    def sequential_forward(self, dense_x, iter, epoch, is_test, lS_o, lS_i):
         # process dense features (using bottom mlp), resulting in a row vector
         x = self.apply_mlp(dense_x, self.bot_l)
         # debug prints
@@ -631,17 +800,33 @@ class DLRM_Net(nn.Module):
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
         # for y in ly:
         #     print(y.detach().cpu().numpy())
+        enable_compress = True #(iter % 1024) < 256 # cyclic compress
+        # eb_conf = stage_check(iter, "linear")
+        decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+        eb_conf = stage_check(iter, decay_func)
+        if enable_compress and not is_test:
+            # do quantization and dequantization instead
+            for i in range(len(ly)):
+                # quantize_and_dequantize_data(ly[i], eb_conf * error_bound[i])
+                scale = (ly[i].max() - ly[i].min()) / 255  # Scale calculation
+                zero_point = ly[i].min()
+                x_quantized = torch.quantize_per_tensor(ly[i], scale, zero_point.int(), torch.qint8)
+                # Dequantization
+                x_dequantized = x_quantized.dequantize()
+                ly[i].data = x_dequantized.data
         '''
-        if iter == 0:
-            for e in self.emb_l:
-                print(e) # TypeError: object of type 'EmbeddingBag' has no len()
+        if not is_test:
+            ly_data = [_.detach().cpu().numpy() for _ in ly]
+            decay_func = str(os.environ.get("DECAY_FUNC"))
+            eb_conf = stage_check(iter, decay_func)
+            ly_devices = []
+            for _ in ly:
+                ly_devices.append(_.device)
+            for i in range(len(ly)):
+                new_ly, ly_i_ratio = sz_comp_decomp(data=ly_data[i], r_eb=eb_conf * error_bound[i], data_shape=ly_data[i].shape, data_type=np.float32)
+                ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
+                record_cr(ly_i_ratio, i)
         '''
-        if iter % 8192 == 0:
-            savepath = "/scratch/bcev/haofeng1/TB_emb"
-            for i,e in enumerate(ly):
-                outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/8192)}.bin"
-                narr = e.cpu().detach().numpy()
-                narr.tofile(outputpath)
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
         # print(z.detach().cpu().numpy())
@@ -657,7 +842,7 @@ class DLRM_Net(nn.Module):
 
         return z
 
-    def parallel_forward(self, dense_x, iter, epoch, lS_o, lS_i):
+    def parallel_forward(self, dense_x, iter, epoch, is_test, lS_o, lS_i):
         ### prepare model (overwrite) ###
         # WARNING: # of devices must be >= batch size in parallel_forward call
         batch_size = dense_x.size()[0]
@@ -729,18 +914,18 @@ class DLRM_Net(nn.Module):
         '''
         # embeddings
         ly = self.apply_emb(lS_o, lS_i, self.emb_l, self.v_W_l)
-
-        # debug prints
-        # print(ly)
-        
-        
-        if iter % 4096 == 0:
-            savepath = "/scratch/bcev/haofeng1/TB_emb"
-            for i,e in enumerate(ly):
-                outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/4096)}.bin"
-                narr = e.cpu().detach().numpy()
-                narr.tofile(outputpath)
-        
+        ly_devices = []
+        for _ in ly:
+            ly_devices.append(_.device)
+        enable_compress = True #(iter % 1024) < 256 # cyclic compress
+        # eb_conf = stage_check(iter, "linear")
+        decay_func = str(os.environ.get("DECAY_FUNC", "linear"))
+        eb_conf = stage_check(iter, decay_func)
+        if enable_compress and not is_test:
+            # do quantization and dequantization instead
+            for i in range(len(ly)):
+                quantize_and_dequantize_data(ly[i], eb_conf * error_bound[i])
+            
         # butterfly shuffle (implemented inefficiently for now)
         # WARNING: Note that at this point we have the result of the embedding lookup
         # for the entire batch on each device. We would like to obtain partial results
@@ -854,18 +1039,20 @@ def inference(
         if ext_dist.my_size > 1 and X_test.size(0) % ext_dist.my_size != 0:
             print("Warning: Skiping the batch %d with size %d" % (i, X_test.size(0)))
             continue
-
+        is_test = True
         # forward pass
         Z_test = dlrm_wrap(
             X_test,
             i,#iter
             0,#epoch
+            is_test,
             lS_o_test,
             lS_i_test,
             use_gpu,
             device,
             ndevices=ndevices,
         )
+        is_test = False
         ### gather the distributed results on each rank ###
         # For some reason it requires explicit sync before all_gather call if
         # tensor is on GPU memory
@@ -1089,7 +1276,9 @@ def run():
     parser.add_argument("--savepath",type=str, default="/N/scratch/haofeng/")
     parser.add_argument("--save-embedding",action="store_true",default=False)
     parser.add_argument("--enable-compress", action="store_true", default=False)
-
+    parser.add_argument("--compressor", type=str, default="ZFP_compressor")
+    parser.add_argument("--layout", type=str, default="table-wise-seperate")
+    parser.add_argument("--error-bound", type=float, default=1e-2)
     global args
     global nbatches
     global nbatches_test
@@ -1143,7 +1332,7 @@ def run():
 
     if not args.debug_mode:
         ext_dist.init_distributed(local_rank=args.local_rank, use_gpu=use_gpu, backend=args.dist_backend)
-
+        print("MY RANK IS, ", ext_dist.my_rank)
     if use_gpu:
         torch.cuda.manual_seed_all(args.numpy_rand_seed)
         torch.backends.cudnn.deterministic = True
@@ -1646,11 +1835,12 @@ def run():
                             continue
 
                         mbs = T.shape[0]  # = args.mini_batch_size except maybe for last
-                        # forward pass, k is epoch, j is iter
+                        # forward pass
                         Z = dlrm_wrap(
                             X,
                             j,
                             k,
+                            False,
                             lS_o,
                             lS_i,
                             use_gpu,
@@ -1744,6 +1934,7 @@ def run():
 
                             total_iter = 0
                             total_samp = 0
+                            # print_cr()
 
                         # testing
                         if should_test:
@@ -1773,7 +1964,7 @@ def run():
                                 use_gpu,
                                 log_iter,
                             )
-
+                            # save model
                             if (
                                 is_best
                                 and not (args.save_model == "")
@@ -1788,7 +1979,6 @@ def run():
                                 ] = optimizer.state_dict()
                                 print("Saving model to {}".format(args.save_model))
                                 torch.save(model_metrics_dict, args.save_model)
-                                # exit() # just exit
 
                             if args.mlperf_logging:
                                 mlperf_logger.barrier()
@@ -1964,9 +2154,12 @@ def run():
 
 
 if __name__ == "__main__":
+    print("start")
+    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
+    sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
+    sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
+    build_error_bound()
+    print("error bounds are, ", error_bound)
     run()
-    my_tolerance = 'r_1e-3'
-    '''
-    with open('com_ratio_'+my_tolerance+'.txt', 'w') as convert_file:
-      convert_file.write(json.dumps(my_emb_comp.ratioLog))
-    '''
+    #with open(compress_comfig+'.txt', 'w') as convert_file:
+      #convert_file.write(json.dumps(my_emb_comp.ratioLog))

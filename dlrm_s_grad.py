@@ -636,10 +636,10 @@ class DLRM_Net(nn.Module):
             for e in self.emb_l:
                 print(e) # TypeError: object of type 'EmbeddingBag' has no len()
         '''
-        if iter % 8192 == 0:
+        if iter % 4096 == 0:
             savepath = "/scratch/bcev/haofeng1/TB_emb"
             for i,e in enumerate(ly):
-                outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/8192)}.bin"
+                outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/4096)}.bin"
                 narr = e.cpu().detach().numpy()
                 narr.tofile(outputpath)
         # interact features (dense and sparse)
