@@ -32,7 +32,7 @@ export CYCLE_LEN_NO_COMP=4096
 export DECAY_FUNC="log"
 export SZ_PATH="/home/haofeng/SZ3/build/lib/"
 
-dlrm_pt_bin="python /home/haofeng/dlrm_comp/dlrm_s_with_compress_adaptive.py"
+dlrm_pt_bin="python /home/haofeng/dlrm_comp/dlrm_s_pytorch.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 
 raw_data="/home/haofeng/datasets/Kaggle/raw/train.txt"
@@ -57,7 +57,6 @@ $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --a
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
 --use-gpu \
---enable-compress
 
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 

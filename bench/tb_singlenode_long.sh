@@ -5,10 +5,10 @@
 #SBATCH -p gpu-debug
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
-#SBATCH --time=2:00:00
+#SBATCH --time=96:00:00
 #SBATCH --output=TB_10M_%j.log 
 #SBATCH --mem=240G
-
+#SBATCH --qos=long
 cat "Note for bash: just test Terebyte Dataset"
 
 module load nvidia

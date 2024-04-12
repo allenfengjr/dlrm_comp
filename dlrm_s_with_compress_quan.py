@@ -109,9 +109,6 @@ with warnings.catch_warnings():
         print("Unable to import onnx. ", error)
 
 # add system path
-sys.path.append("/u/haofeng1/SZ3/tools/pysz")
-import compressor
-from pysz import SZ
 import zfpy
 import torch.profiler
 import platform
@@ -124,12 +121,6 @@ import platform
 # exc = getattr(builtins, "IOError", "FileNotFoundError")
 # my_emb_comp = compressor.emb_compressor()
 
-
-def sz_comp_decomp(data, r_eb, data_shape, data_type):
-    a_eb = (data.max()-data.min()) * r_eb
-    data_cmpr, data_ratio = sz.compress(data, 0, a_eb, 0, 0)
-    data_dcmp = sz.decompress(data_cmpr, data_shape, data_type)
-    return (data_dcmp.astype(data_type), data_ratio)
 
 error_bound = []
 early_stage = 0
@@ -710,7 +701,7 @@ class DLRM_Net(nn.Module):
             dimension = 0
             # return a tupple
             print("world size is, ", ext_dist.my_size)
-            uncompressed_data.append(compressor.split_tensor(ly[i], ext_dist.my_size, dimension))
+            # uncompressed_data.append(compressor.split_tensor(ly[i], ext_dist.my_size, dimension))
             # for simple compression, hardcode ZFP
             compressed_data.append([])
             for j in range(len(uncompressed_data[i])):
@@ -2149,9 +2140,9 @@ def run():
 
 if __name__ == "__main__":
     print("start")
-    lib_extention = "so" if platform.system() == 'Linux' else "dylib"
-    sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
-    sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
+    #lib_extention = "so" if platform.system() == 'Linux' else "dylib"
+    #sz_path = os.environ.get("SZ_PATH", "/N/u/haofeng/BigRed200/SZ3_build/lib64/")
+    #sz = SZ(sz_path+"libSZ3c.{}".format(lib_extention))
     build_error_bound()
     print("error bounds are, ", error_bound)
     run()

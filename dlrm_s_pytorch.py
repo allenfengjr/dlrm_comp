@@ -637,7 +637,7 @@ class DLRM_Net(nn.Module):
                 print(e) # TypeError: object of type 'EmbeddingBag' has no len()
         '''
         if iter % 8192 == 0:
-            savepath = "/scratch/bcev/haofeng1/TB_emb"
+            savepath = "/N/scratch/haofeng/SC_Kaggle_emb"
             for i,e in enumerate(ly):
                 outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/8192)}.bin"
                 narr = e.cpu().detach().numpy()

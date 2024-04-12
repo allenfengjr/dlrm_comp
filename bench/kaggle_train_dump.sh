@@ -2,12 +2,12 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p general
+#SBATCH -p gpu
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=16
+#SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=48:00:00
-#SBATCH --output=kaggle_baseline_%j.log
+#SBATCH --time=24:00:00
+#SBATCH --output=adaptive_compare_%j.log
 #SBATCH --mem=200G
 
 module load nvidia
@@ -45,10 +45,33 @@ master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_ADDR=$master_addr
 echo "MASTER_ADDR="$MASTER_ADDR
 
-dlrm_pt_bin="python dlrm_s_pytorch.py"
+# Define error bound
+# Indices of the tables with custom error bounds
+export TIGHTEN_EB_TABLES="2 3 9 11 15 20 23 25"
+export LOOSEN_EB_TABLES="8 16 19 21 22 24"
+# Custom error bound for the tables defined above
+export TIGHTEN_EB_VALUE="0.03"
+export LOOSEN_EB_VALUE="0.15"
+# Base error bound for all other tables
+export BASE_ERROR_BOUND="0.09"
+
+export EB_CONSTANT=3
+
+# Early Stage: 1024 * 64(total 306969 mini-batch as 128 batch size)
+export EARLY_STAGE=65536
+echo "ALL STEP CASE"
+# Compress/Uncompress every 4096 mini-batch
+export CYCLE_LEN_COMP=4096
+export CYCLE_LEN_NO_COMP=4096
+export DECAY_FUNC="constant"
+
+dlrm_pt_bin="python dlrm_s_with_compress_adaptive.py"
 dlrm_c2_bin="python dlrm_s_caffe2.py"
 raw_data="/N/scratch/haofeng/Kaggle/raw/train.txt"
 processed_data="/N/scratch/haofeng/Kaggle/processed/kaggleAdDisplayChallenge_processed.npz"
+echo $DECAY_FUNC
+echo $EARLY_STAGE
+echo $EB_CONSTANT
 echo "run pytorch ..."
 # WARNING: the following parameters will be set based on the data set
 # --arch-embedding-size=... (sparse feature sizes)
@@ -65,11 +88,12 @@ $dlrm_pt_bin --arch-sparse-feature-size=32 --arch-mlp-bot="13-512-256-64-32" --a
 --mini-batch-size=128 \
 --print-freq=1024 \
 --print-time \
---print-wall-time \
 --test-freq=1024 \
 --test-mini-batch-size=16384 \
 --test-num-workers=16 \
-#--use-gpu \
+--use-gpu \
+--enable-compress \
+#--enable-profiling
 
 #$dlrm_extra_option 2>&1 | tee run_terabyte_pt.log
 
