@@ -1,11 +1,12 @@
 import os
 import numpy as np
 import torch
+inttype = np.int16
 
 def quantization(original_arr, eb, filename):
     eb = (original_arr.max() - original_arr.min()) * eb
     print("absolute error bound, ", eb)
-    quantization_arr = np.round(original_arr* (1/(eb*2))).astype(np.int16)
+    quantization_arr = np.round(original_arr* (1/(eb*2))).astype(inttype)
     quantization_arr += abs(quantization_arr.min())+1
     synthetic_outlier = quantization_arr[np.where(quantization_arr>=65536)].astype(np.float32)
     # synthetic_outlier.tofile(f"{filename}.outlier") # no outlier with my error bound
