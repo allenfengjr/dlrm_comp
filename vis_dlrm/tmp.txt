@@ -1,0 +1,110 @@
+>>>>  cusz build: 2023-09-05 (unstable)
+NAME
+        cuSZ: CUDA-Based Error-Bounded Lossy Compressor for Scientific Data
+        Lowercased "cusz" is the command.
+
+SYNOPSIS
+        The basic use is listed below,
+        cusz -t f32 -m r2r -e 1.0e-4.0 -i ./data/cesm-CLDHGH-3600x1800 -l 3600,1800 -z --report time
+             ------ ------ ----------- ------------------------------- ------------  |  
+              dtype  mode  error bound            input file           low-to-high  zip 
+
+        cusz -i ./data/cesm-CLDHGH-3600x1800.cusza -x --compare ./data/cesm-CLDHGH-3600x1800 --report time
+             -------------------------------------  |   
+                         compressed file          unzip 
+
+        cusz -t f32|64 -m [eb mode] -e [eb] -i [datum file] -l [x[,y[,z]]] -z
+        cusz -i [basename].cusza -x
+
+OPTIONS
+    Mandatory (zip and dryrun)
+        -z or --compress or --zip
+        -r or --dry-run
+                No lossless Huffman codec. Only to get data quality summary.
+                In addition, quant. rep. and dict. size are retained
+
+        -m or --mode <abs|r2r>
+                Specify error-controlling mode. Supported modes include:
+                abs: absolute mode, eb = input eb
+                r2r: relative-to-value-range mode, eb = input eb x value range
+
+        -e or --eb or --error-bound [num]
+                Specify error bound. e.g., 1.23, 1e-4, 1.23e-4.56
+
+        -i or --input [file]
+
+        -d or --dict-size [256|512|1024|...]
+                Specify dictionary size/quantization bin number.
+                Should be a power-of-2.
+
+        -l [x[,y[,z]]]   Specify (1|2|3)D data size, with dimensions from low to high.
+
+    Mandatory (unzip)
+        -x or --extract or --decompress or --unzip
+
+        -i or --input [corresponding datum basename (w/o extension)]
+
+    Additional
+        -p or --predictor
+                Select predictor from "lorenzo" (default) or "spline3d" (3D only).
+        --origin or --compare /path/to/origin-datum
+                For verification & get data quality evaluation.
+        --opath  /path/to
+                Specify alternative output path.
+
+    Modules
+        --skip module-1,module-2,...,module-n,
+                Disable functionality modules. Supported module(s) include:
+                huffman  Huffman codec after prediction+quantization (p+q) and before reversed p+q.
+                write2disk  Skip write decompression data.
+
+    Print Report to stdout
+        --report (option=on/off)-list
+                Syntax: opt[=v], "kw1[=(on|off)],kw2=[=(on|off)]
+                Keyworkds: time  quality  compressibility
+                Example: "--report time", "--report time=off"
+
+    Demonstration
+        -h or --help
+                Get help documentation.
+
+
+    Advanced Runtime Configuration
+        --demo [demo-dataset]
+                Use demo dataset, will omit given dimension(s). Supported datasets include:
+                1D: hacc  hacc1b    2D: cesm  exafel
+                3D: hurricane  nyx-s  nyx-m  qmc  qmcpre  rtm  parihaka
+
+        -c or --config (option=value)-list
+               Syntax: opt=v, "kw1=val1,kw1=val2[,...]"
+                   + eb=<val>    error bound
+                   + cap=<val>   capacity, number of quant-codes
+                   + demo=<val>  skip length input ("-l x[,y[,z]]"), alternative to "--demo dataset"
+
+EXAMPLES
+    Demo Datasets
+        Set a shell variable:
+        export PATH=$(pwd)/bin:$PATH
+        CESM=./data/cesm-CLDHGH-3600x1800
+        HURR=./data/hurr-CLOUDf48-500x500x100
+
+        CESM example:
+        cusz -t f32 -m r2r -e 1e-4 -i ${CESM} -l 3600x1800 -z --report time
+        cusz -t f32 -m r2r -e 1e-4 -i ${CESM} -l 3600x1800 -r
+        cusz -i ${CESM}.cusza -x --report time --compare ${CESM} --skip write2disk
+
+        CESM example with specified output path:
+        mkdir data2 data3
+        # zip, output to `data2`
+        cusz -t f32 -m r2r -e 1e-4 -i ${CESM} -l 3600x1800 -z --opath data2
+        # unzip, in situ
+        cusz -i ${CESM}.cusza -x && ls data2
+        # unzip, output to `data3`
+        cusz -i ${CESM}.cusza -x --opath data3 && ls data3
+        # unzip, output to `data3`, compare to the original datum
+        cusz -i ${CESM}.cusza -x --opath data3 --compare ${CESM} && ls data3
+
+        Hurricane Isabel example:
+        cusz -t f32 -m r2r -e 1e-4 -i ${HURR} -l 500x500x100 -z
+        cusz -t f32 -m r2r -e 1e-4 -i ${HURR} -l 500x500x100 -r
+        cusz -i ${HURR}.cusza -x

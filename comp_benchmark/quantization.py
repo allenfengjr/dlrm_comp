@@ -19,7 +19,7 @@ def fbgemm_quantization(original_arr, filename):
     send_tensor = torch.ops.fbgemm.FloatToHFP8Quantized(original_arr, 4, 1, 10.0)
     # receive_tensor = torch.ops.fbgemm.HFP8QuantizedToFloat(receive_tensor, 4, 1)
     send_tensor = send_tensor.cpu().numpy()
-    send_tensor.tofile(f"quan_{filename}")
+    send_tensor.tofile(f"{filename}.fbgemm_quan")
     return None
 
 def pytorch_quantization(original_arr, filename):
@@ -38,10 +38,10 @@ def pytorch_quantization(original_arr, filename):
     return quantized_tensor
 
 
-
+EMB_file_path = "/N/u/haofeng/BigRed200/SC_TB_emb"
 for tb in range(26):
     for iter in range(1,23):
-        filename = f"/N/u/haofeng/BigRed200/SC_TB_emb/EMB_{tb}_iter_{iter}.bin"
+        filename = f"{EMB_file_path}/EMB_{tb}_iter_{iter}.bin"
         data = np.fromfile(filename, dtype=np.float32)
         eb = 0.005
         quantization(data, eb, filename)
