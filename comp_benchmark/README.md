@@ -5,7 +5,7 @@
 
 ## Step 1. Do Quantization
 
-To simulate lossy compression, please first apply quantization. Run `python quantization.py EMB_file_path decay_stage`, to generate quantization code of inputs. Modify `EMB_file_path` as the embedding data directory. Modify `decay_stage` as the decay stop point.
+To simulate lossy compression, please first apply quantization. Run `python quantization.py EMB_file_path decay_stage`, to generate quantization code of inputs. Modify `EMB_file_path` as the embedding data directory. Modify `decay_stage` as the decay stop point. Function `build_error_bound()` define the build strategy of table-wise and iteration-wise adjustment, `step-wise decay` by default.
 
 Change `intType` variable to choose use `int8` or `int16` as quantization code datatype.
 
