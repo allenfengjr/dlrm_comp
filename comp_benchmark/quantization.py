@@ -1,7 +1,37 @@
 import os
+import sys
 import numpy as np
 import torch
 inttype = np.int16
+
+# Terabyte
+TIGHTEN_EB_TABLES = {0, 9, 10, 19, 20, 21, 22}
+LOOSEN_EB_TABLES = {5, 8, 12, 15, 16, 17, 18, 24, 25}
+TIGHTEN_EB_VALUE = 0.01
+LOOSEN_EB_VALUE = 0.03
+BASE_ERROR_BOUND = 0.02
+NUM_TABLES = 26
+NUM_ITERATIONS = 23
+
+# Generating EB list with error bounds
+EB = []
+# decay
+for table in range(NUM_TABLES):
+    if table in TIGHTEN_EB_TABLES:
+        base_eb = TIGHTEN_EB_VALUE
+    elif table in LOOSEN_EB_TABLES:
+        base_eb = LOOSEN_EB_VALUE
+    else:
+        base_eb = BASE_ERROR_BOUND
+    table_eb = []
+    # default decay function is 'step-wise decay'
+    decay_stage = sys.argv[3]
+    for iter in range(NUM_ITERATIONS):
+        if iter < decay_stage:
+            eb = (base_eb * 2) - (iter * (base_eb / decay_stage))
+        else:
+            eb = base_eb
+    EB.append(table_eb)
 
 def quantization(original_arr, eb, filename):
     eb = (original_arr.max() - original_arr.min()) * eb
@@ -39,10 +69,10 @@ def pytorch_quantization(original_arr, filename):
     return quantized_tensor
 
 
-EMB_file_path = "/N/u/haofeng/BigRed200/SC_TB_emb"
+EMB_file_path = sys.argv[2] # "/N/u/haofeng/BigRed200/SC_TB_emb"
 for tb in range(26):
     for iter in range(1,23):
         filename = f"{EMB_file_path}/EMB_{tb}_iter_{iter}.bin"
         data = np.fromfile(filename, dtype=np.float32)
-        eb = 0.005
+        eb = EB[table][iter] # get table-wise and iter-wise eb
         quantization(data, eb, filename)

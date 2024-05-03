@@ -50,7 +50,6 @@ for table in range(NUM_TABLES):
         base_eb = LOOSEN_EB_VALUE
     else:
         base_eb = BASE_ERROR_BOUND
-
     table_eb = []
     for iter in range(NUM_ITERATIONS):
         # if iter < 24:
