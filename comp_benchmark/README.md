@@ -5,17 +5,17 @@
 
 ## Step 1. Do Quantization
 
-To simulate lossy compression, please first apply quantization. Run `quantization.py`, to generate quantization code of inputs. Please modify `EMB_file_path` and filename format to fit requirement.
+To simulate lossy compression, please first apply quantization. Run `python quantization.py`, to generate quantization code of inputs. Modify `EMB_file_path` as the embedding data directory.
 
 Change `intType` variable to choose use `int8` or `int16` as quantization code datatype.
 
 ## Step 1.1(Optional) Data Padding
 
-To simulate compression on larger batch_size, you can run `python padding_files.py` to padding EMB data with its own copy. Modify `copy` as multiple of original data.
+To simulate compression on larger batch_size, you can run `python padding_files.py` to padding EMB data with its own copy. Modify `copy_times` as multiple of original data.
 
 ## Step 2. Choose Lossless Encoder
 
-There are four encoder we use, LZ4 encoder, ANS encoder, GPULZ encoder, and Huffman encoder. 
+There are four encoder we use, LZ4 encoder, ANS encoder, GPULZ encoder, and Huffman encoder. Run `python lossless_encoder.py` to generate compression ratio, compression throughput and decompression throughput. For more details about executable binary usage, please refer to documents of above repos and `EXECUTABLES` variable in `lossless_encoder.py`. Before
 
 To install and use LZ4 and ANS encoder, refer to [nvcomp](https://developer.nvidia.com/nvcomp).
 
@@ -25,11 +25,10 @@ To install GPULZ encoder, refer to [gpulz](https://github.com/hipdac-lab/ICS23-G
 
 Usage example `gpulz -i {fliename}`.
 
-To install Huffman encoder, refer to [cusz](https://github.com/szcompressor/cuSZ/). The execution binary `bin_hf` is under `example` folder.
+To install Huffman encoder, refer to [cusz](https://github.com/szcompressor/cuSZ/). After compiling, the execution binary `bin_hf` is under `example` folder.
 
 Usage example `bin_hf {filename} x y z booklen`. 
 
-Run `python lossless_encoder.py` to generate compression ratio, compression throughput and decompression throughput. For more details about executable binary usage, please refer to documents of above repos and `EXECUTABLES` variable in `lossless_encoder.py`.
 
 ## Step 3. Parse Log
 
