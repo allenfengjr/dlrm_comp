@@ -11,11 +11,11 @@ Change `intType` variable to choose use `int8` or `int16` as quantization code d
 
 ## Step 1.1(Optional) Data Padding
 
-To simulate compression on larger batch_size, you can run `python padding_files.py` to padding EMB data with its own copy. Modify `copy_times` as multiple of original data.
+To simulate compression on larger batch_size, run `python padding_files.py` to padding EMB data with its own copy. Modify `copy_times` as multiple of original data.
 
 ## Step 2. Choose Lossless Encoder
 
-There are four encoder we use, LZ4 encoder, ANS encoder, GPULZ encoder, and Huffman encoder. Run `python lossless_encoder.py` to generate compression ratio, compression throughput and decompression throughput. For more details about executable binary usage, please refer to documents of above repos and `EXECUTABLES` variable in `lossless_encoder.py`. Before
+There are four encoder we apply, LZ4 encoder, ANS encoder, GPULZ encoder, and Huffman encoder. Run `python lossless_encoder.py` to generate compression ratio, compression throughput and decompression throughput. For more details about executable binary usage, please refer to documents of above repos and `EXECUTABLES` variable in `lossless_encoder.py`. Before
 
 To install and use LZ4 and ANS encoder, refer to [nvcomp](https://developer.nvidia.com/nvcomp).
 
@@ -32,9 +32,13 @@ Usage example `bin_hf {filename} x y z booklen`.
 
 ## Step 3. Parse Log
 
-To extract the log file, use `huffman_parser.py`, `nvcomp_parser.py`, and `gpulz_parser.py`. These script will read log file as input and print compression ratio, compression throughput, and decompression throughput. Modify `file_path` as input log path.
+To extract the log file, run `python huffman_parser.py`, `python nvcomp_parser.py`, and `python gpulz_parser.py` for different lossless encoders' log. These script will read log file as input and print compression ratio, compression throughput, and decompression throughput. Modify `file_path` as input log path.
 
-## Step 4. Visualization
+## Step 4. Speed-up Calculation
+
+To calculate the speed-up, run `python speedup_calculation.py logFilePath bandwidth` to calculate the speed-up of lossless encoders. NOTE: `bandwidth` should consider the time cost of quantization and dequantization.
+
+## Step 5. Visualization
 
 TBD.
 
