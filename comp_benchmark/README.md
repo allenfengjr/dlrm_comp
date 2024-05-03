@@ -7,28 +7,33 @@
 
 To simulate lossy compression, please first apply quantization. Run `quantization.py`, to generate quantization code of inputs. Please modify `EMB_file_path` and filename format to fit requirement.
 
-Change `inttype` to choose use `int8` or `int16` as quantization code datatype.
+Change `intType` variable to choose use `int8` or `int16` as quantization code datatype.
 
 ## Step 1.1(Optional) Data Padding
 
-To simulate compression on larger batch_size, you can run `padding_files.py` to padding EMB data with its own copy.
+To simulate compression on larger batch_size, you can run `python padding_files.py` to padding EMB data with its own copy. Modify `copy` as multiple of original data.
 
 ## Step 2. Choose Lossless Encoder
 
-There are four encoder we use, LZ4 encoder, ANS encoder, GPULZ encoder, and Huffman encoder.
+There are four encoder we use, LZ4 encoder, ANS encoder, GPULZ encoder, and Huffman encoder. 
 
 To install and use LZ4 and ANS encoder, refer to [nvcomp](https://developer.nvidia.com/nvcomp).
 
-Use `benchmark_ans_chunked -f {filename}` to encode.
+Usage example `benchmark_ans_chunked -f {filename}`.
 
 To install GPULZ encoder, refer to [gpulz](https://github.com/hipdac-lab/ICS23-GPULZ).
 
-Use `gpulz`
-To install Huffman encoder, refer to [cusz](https://github.com/szcompressor/cuSZ/).
+Usage example `gpulz -i {fliename}`.
+
+To install Huffman encoder, refer to [cusz](https://github.com/szcompressor/cuSZ/). The execution binary `bin_hf` is under `example` folder.
+
+Usage example `bin_hf {filename} x y z booklen`. 
+
+Run `python lossless_encoder.py` to generate compression ratio, compression throughput and decompression throughput. For more details about executable binary usage, please refer to documents of above repos and `EXECUTABLES` variable in `lossless_encoder.py`.
 
 ## Step 3. Parse Log
 
-To extract the log file, use `nvcomp_parser.py`, these script will read log file as input and print compression ratio, compression throughput, and decompression throughput.
+To extract the log file, use `huffman_parser.py`, `nvcomp_parser.py`, and `gpulz_parser.py`. These script will read log file as input and print compression ratio, compression throughput, and decompression throughput. Modify `file_path` as input log path.
 
 ## Step 4. Visualization
 

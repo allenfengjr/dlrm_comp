@@ -7,7 +7,6 @@ def quantization(original_arr, eb, filename):
     eb = (original_arr.max() - original_arr.min()) * eb
     print("absolute error bound, ", eb)
     quantization_arr = np.round(original_arr* (1/(eb*2))).astype(np.int8)
-    #Baixi
     quantization_arr += abs(quantization_arr.min())+1
     synthetic_outlier = quantization_arr[np.where(quantization_arr>=65536)].astype(np.float32)
     synthetic_outlier.tofile(f"{filename}.outlier")
@@ -86,9 +85,10 @@ for table in range(NUM_TABLES):
 
 # Update your executable files to include placeholders for dynamic error bounds
 EXECUTABLES = {
-    "/N/u/haofeng/BigRed200/cusz-latest/build/cusz": "-z -i {filename} -t f32 -m r2r -e {error_bound} -l 2048x64x128 --report time",
+    # "/N/u/haofeng/BigRed200/cusz-latest/build/cusz": "-z -i {filename} -t f32 -m r2r -e {error_bound} -l 2048x64x128 --report time",
     # "/N/u/haofeng/BigRed200/sz3": "-f -i {filename} -o tempdata.sz.out -2 128 32 -M REL {error_bound} -a",
     # "/home/haofeng/FZ-GPU/fz-gpu": "{filename} 128 32 1 {error_bound}",
+    "/N/u/haofeng/BigRed200/cusz-latest/build/example/bin_hf": "{filename} 2048 64 128 256",
     # "/N/u/haofeng/BigRed200/nvcomp/bin/benchmark_lz4_chunked": "-f {filename}",
     # "/home/haofeng/nvcomp_software/bin/benchmark_deflate_chunked": "-f {filename}",
     # "/N/u/haofeng/BigRed200//nvcomp/bin/benchmark_ans_chunked": "-f {filename}",
@@ -113,6 +113,7 @@ LOG_FILES = {
     "/home/haofeng/sz3_no_pred/bin/sz3": "CMP_NO_PRED.log",
     "/N/u/haofeng/BigRed200/ICS23-GPULZ/gpulz":"CMP_GPULZ.log",
     "/home/haofeng/FZ-GPU/fz-gpu":"CMP_FZGPU.log",
+    "/N/u/haofeng/BigRed200/cusz-latest/build/example/bin_hf":"CMP_Huffman.log",
     "/N/u/haofeng/BigRed200/nvcomp/bin/benchmark_lz4_chunked": "CMP_nvCOMP_LZ4.log",
     "/home/haofeng/nvcomp_software/bin/benchmark_deflate_chunked": "CMP_nvCOMP_deflate.log",
     "/home/haofeng/qcat-1.3-install/bin/simSZ": "CMP_simSZ.log",
@@ -134,6 +135,7 @@ for exec_path, exec_args in EXECUTABLES.items():
                 log_file_name = LOG_FILES.get(exec_path, "default.log")
 
                 with open(log_file_name, 'a') as log_file:
+                    # print(args)
                     log_file.write(f"Executing: {exec_path} {args}\n")
                     result = subprocess.run([exec_path] + args.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     log_file.write(result.stdout.decode())

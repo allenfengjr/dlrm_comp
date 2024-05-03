@@ -2,19 +2,16 @@ import re
 from statistics import harmonic_mean
 
 def parse_log(log_data):
-    # 分段处理每个迭代的数据
     log_segments = log_data.strip().split('Executing: ')
     results = {}
 
     for segment in log_segments[1:]:  # Skip the initial empty segment
-        # 从Completed行提取EMB和iter
         completed_match = re.search(r"Completed: EMB ([0-9]+), Iter ([0-9]+)", segment)
         if not completed_match:
             continue
         
         emb, iter = map(int, completed_match.groups())
         
-        # 提取压缩比、压缩吞吐量和解压吞吐量
         ratio_match = re.search(r"compression ratio:\s*([0-9.]+)", segment)
         comp_thru_match = re.search(r"compression e2e throughput:\s*([0-9.]+)\s*GB/s", segment)
         decomp_thru_match = re.search(r"decompression e2e throughput:\s*([0-9.]+)\s*GB/s", segment)
@@ -56,14 +53,11 @@ def print_harmonic_means(harmonic_means):
         dt = harmonic_means[emb]['decompression_throughput']
         print(f"{cr:.6f} {ct:.6f} {dt:.6f}")
 
-# 指定日志文件路径
 filepath = "CMP_GPULZ_001.log"
 
-# 从文件读取日志数据
 log_data = read_log_file(filepath)
 # print(log_data)
 
-# 解析日志数据
 results = parse_log(log_data)
 
 # Parse and calculate harmonic means

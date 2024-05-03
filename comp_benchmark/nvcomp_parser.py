@@ -5,19 +5,16 @@ def parse_log(filepath):
     with open(filepath, 'r') as file:
         log_data = file.read()
 
-    # 分段处理每个迭代的数据
     log_segments = log_data.strip().split('Executing: ')
     results = {}
 
     for segment in log_segments[1:]:  # Skip the initial empty segment
-        # 从Completed行提取EMB和iter
         completed_match = re.search(r"Completed: EMB ([0-9]+), Iter ([0-9]+)", segment)
         if not completed_match:
             continue
         
         emb, iter = map(int, completed_match.groups())
         
-        # 提取压缩比、压缩吞吐量和解压吞吐量
         ratio_match = re.search(r"compressed ratio: ([0-9.]+)", segment)
         comp_thru_match = re.search(r"compression throughput \(GB/s\): ([0-9.]+)", segment)
         decomp_thru_match = re.search(r"decompression throughput \(GB/s\): ([0-9.]+)", segment)
