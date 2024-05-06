@@ -48,6 +48,7 @@ TBD.
 
 You can use a quantization function to mimic the lossy compression.
 
+Link to functions: [quantize_and_dequantize_data](https://github.com/allenfengjr/dlrm_comp/blob/80f31b5ab4a5b5739a953ff611339b7978f79d17/dlrm_s_with_compress_quan.py#L130C1-L135C83)
 ```python
 def quantize_and_dequantize_data(x, eb):
     # Ensure calculations are performed on the same device as x (GPU in this case)
@@ -60,6 +61,8 @@ def quantize_and_dequantize_data(x, eb):
 ```
 
 Usage example:
+
+Link to usage: [usage](https://github.com/allenfengjr/dlrm_comp/blob/80f31b5ab4a5b5739a953ff611339b7978f79d17/dlrm_s_with_compress_quan.py#L798C9-L801C78)
 
 Single GPU
 ```python
@@ -84,6 +87,12 @@ for q in range(ext_dist.my_size):
 ## Method 2: Python binding
 
 You can also use a compressor's python binding to compressed the data. For example, SZ's binding usage.
+
+Link to SZ binding and usage: 
+
+[sz binding 1](https://github.com/allenfengjr/dlrm_comp/blob/80f31b5ab4a5b5739a953ff611339b7978f79d17/dlrm_s_with_compress_adaptive.py#L128C1-L132C53)
+[sz binding 2](https://github.com/allenfengjr/dlrm_comp/blob/80f31b5ab4a5b5739a953ff611339b7978f79d17/dlrm_s_with_compress_adaptive.py#L2196C5-L2198C56)
+[sz usage](https://github.com/allenfengjr/dlrm_comp/blob/80f31b5ab4a5b5739a953ff611339b7978f79d17/dlrm_s_with_compress_adaptive.py#L919C13-L922C41)
 
 ```python
 from pysz import SZ
