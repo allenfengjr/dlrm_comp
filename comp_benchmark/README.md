@@ -44,6 +44,8 @@ TBD.
 
 # Part 2: Compression in Training
 
+In DLRM training code, `ly[i]` refers to `i`-th Embedding Table. To apply compression in DLRM training, we need to modify the data of `ly[i].data`. There are two methods to modify the data.
+
 ## Method 1: Compression Simulation
 
 You can use a quantization function to mimic the lossy compression.
