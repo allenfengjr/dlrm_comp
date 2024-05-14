@@ -2,11 +2,11 @@
 
 #SBATCH --job-name=kaggle
 #SBATCH -A r00114
-#SBATCH -p gpu
+#SBATCH -p gpu-debug
 #SBATCH --nodes=1
 #SBATCH --gpus-per-node=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 #SBATCH --output=adaptive_compare_%j.log
 #SBATCH --mem=200G
 
