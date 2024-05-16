@@ -46,7 +46,7 @@ Paste output from step 4 and run `python stack_bar_vis.py` to generate the figur
 
 In DLRM training code, `ly[i]` refers to `i`-th Embedding Table. To apply compression in DLRM training, we need to modify the data of `ly[i].data`. There are two methods to modify the data.
 
-To appy different error bounds and decay function, there are many approaches, here is one example using environment variables. There are also some other solution like YAML or JSON file.
+To appy different error bounds and decay function, there are many approaches, here is one example using environment variables. There are also some other solutions like YAML or JSON file.
 
 ```bash
 # Indices of the tables with custom error bounds
@@ -60,7 +60,7 @@ export BASE_ERROR_BOUND="0.09"
 export DECAY_FUNCTION="step"
 ```
 
-There are two helper function to have a better understanding.
+There are two helper function for error bound configuration.
 
 ```python
 def build_error_bound() -> List(int):
