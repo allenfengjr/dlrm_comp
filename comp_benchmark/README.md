@@ -40,11 +40,38 @@ To calculate the speed-up, run `python speedup_calculation.py logFilePath bandwi
 
 ## Step 5. Visualization
 
-TBD.
+Paste output from step 4 and run `python stack_bar_vis.py` to generate the figure of time breakdown in Alltoall communication.
 
 # Part 2: Compression in Training
 
 In DLRM training code, `ly[i]` refers to `i`-th Embedding Table. To apply compression in DLRM training, we need to modify the data of `ly[i].data`. There are two methods to modify the data.
+
+To appy different error bounds and decay function, there are many approaches, here is one example using environment variables. There are also some other solution like YAML or JSON file.
+
+```bash
+# Indices of the tables with custom error bounds
+export TIGHTEN_EB_TABLES="2 3 9 11 15 20 23 25"
+export LOOSEN_EB_TABLES="8 16 19 21 22 24"
+# Custom error bound for the tables defined above
+export TIGHTEN_EB_VALUE="0.03"
+export LOOSEN_EB_VALUE="0.15"
+# Base error bound for all other tables
+export BASE_ERROR_BOUND="0.09"
+export DECAY_FUNCTION="step"
+```
+
+There are two helper function to have a better understanding.
+
+```python
+def build_error_bound() -> List(int):
+    '''
+    return a list of error bounds for each EMB tables
+    '''
+def stage_check(iteration:int, function:str) -> int:
+    '''
+    return a coefficient to mulitply for given iteration and decay function.
+    '''
+```
 
 ## Method 1: Compression Simulation
 
