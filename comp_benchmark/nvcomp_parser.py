@@ -54,7 +54,7 @@ def print_harmonic_means(harmonic_means):
 
 
 # File path to your log file
-file_path = "CMP_nvCOMP_LZ4_001.log"
+file_path = "CMP_ANS.log"
 
 # Parse and calculate harmonic means
 harmonic_means = parse_log(file_path)
