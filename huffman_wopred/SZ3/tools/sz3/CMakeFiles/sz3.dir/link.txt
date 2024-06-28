@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/sz3.dir/sz3.cpp.o -o sz3  -Wl,-rpath,/home/haofeng/sz3_no_pred/SZ3/tools/zstd /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so ../zstd/libzstd.so

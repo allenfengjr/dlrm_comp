@@ -1,0 +1,254 @@
+[
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/entropy_common.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/entropy_common.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/entropy_common.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/entropy_common.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/pool.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/pool.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/pool.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/pool.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/threading.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/threading.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/threading.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/threading.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/debug.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/debug.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/debug.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/debug.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/xxhash.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/xxhash.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/xxhash.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/xxhash.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/fse_decompress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/fse_decompress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/fse_decompress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/fse_decompress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/zstd_common.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/zstd_common.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/zstd_common.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/zstd_common.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/common/error_private.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/error_private.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common/error_private.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/common/error_private.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_ldm.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_ldm.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_ldm.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_ldm.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_lazy.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_lazy.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_lazy.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_lazy.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/huf_compress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/huf_compress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/huf_compress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/huf_compress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_opt.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_opt.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_opt.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_opt.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_double_fast.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_double_fast.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_double_fast.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_double_fast.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_compress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_compress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_compress_superblock.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress_superblock.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress_superblock.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_compress_superblock.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_compress_sequences.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress_sequences.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress_sequences.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_compress_sequences.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_compress_literals.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress_literals.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_compress_literals.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_compress_literals.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstd_fast.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_fast.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstd_fast.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstd_fast.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/fse_compress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/fse_compress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/fse_compress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/fse_compress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/zstdmt_compress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstdmt_compress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/zstdmt_compress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/zstdmt_compress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/compress/hist.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/hist.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress/hist.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/compress/hist.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/decompress/zstd_decompress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/zstd_decompress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/zstd_decompress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/decompress/zstd_decompress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/decompress/huf_decompress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/huf_decompress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/huf_decompress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/decompress/huf_decompress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/decompress/zstd_ddict.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/zstd_ddict.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/zstd_ddict.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/decompress/zstd_ddict.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/decompress/zstd_decompress_block.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/zstd_decompress_block.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress/zstd_decompress_block.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/decompress/zstd_decompress_block.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/deprecated/zbuff_common.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated/zbuff_common.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated/zbuff_common.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/deprecated/zbuff_common.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/deprecated/zbuff_compress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated/zbuff_compress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated/zbuff_compress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/deprecated/zbuff_compress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/deprecated/zbuff_decompress.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated/zbuff_decompress.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated/zbuff_decompress.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/deprecated/zbuff_decompress.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v05.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v05.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v05.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v05.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v04.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v04.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v04.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v04.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v06.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v06.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v06.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v06.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v07.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v07.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v07.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v07.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v03.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v03.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v03.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v03.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v02.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v02.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v02.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v02.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/legacy/zstd_v01.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v01.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy/zstd_v01.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/legacy/zstd_v01.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/dictBuilder/cover.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/cover.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/cover.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/dictBuilder/cover.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/dictBuilder/divsufsort.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/divsufsort.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/divsufsort.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/dictBuilder/divsufsort.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/dictBuilder/zdict.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/zdict.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/zdict.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/dictBuilder/zdict.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd",
+  "command": "/usr/bin/cc -Dzstd_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/common -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/compress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/decompress -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/deprecated -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dll -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd/legacy -O3 -DNDEBUG -fPIC -o CMakeFiles/zstd.dir/dictBuilder/fastcover.c.o -c /home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/fastcover.c",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/zstd/dictBuilder/fastcover.c",
+  "output": "tools/zstd/CMakeFiles/zstd.dir/dictBuilder/fastcover.c.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/sz3",
+  "command": "/usr/bin/c++ -DSZ3_DEBUG_TIMINGS=1 -I/home/haofeng/sz3_no_pred/SZ3/include -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -O3 -DNDEBUG -std=gnu++17 -fopenmp -o CMakeFiles/sz3.dir/sz3.cpp.o -c /home/haofeng/sz3_no_pred/SZ3/tools/sz3/sz3.cpp",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/sz3/sz3.cpp",
+  "output": "tools/sz3/CMakeFiles/sz3.dir/sz3.cpp.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/sz3",
+  "command": "/usr/bin/c++ -DSZ3_DEBUG_TIMINGS=1 -I/home/haofeng/sz3_no_pred/SZ3/include -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -O3 -DNDEBUG -std=gnu++17 -fopenmp -o CMakeFiles/sz3_smoke_test.dir/sz3_smoke_test.cpp.o -c /home/haofeng/sz3_no_pred/SZ3/tools/sz3/sz3_smoke_test.cpp",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/sz3/sz3_smoke_test.cpp",
+  "output": "tools/sz3/CMakeFiles/sz3_smoke_test.dir/sz3_smoke_test.cpp.o"
+},
+{
+  "directory": "/home/haofeng/sz3_no_pred/SZ3/tools/sz3c",
+  "command": "/usr/bin/c++ -DSZ3_DEBUG_TIMINGS=1 -DSZ3c_EXPORTS -I/home/haofeng/sz3_no_pred/SZ3/tools/sz3c/include -I/home/haofeng/sz3_no_pred/SZ3/include -I/home/haofeng/sz3_no_pred/SZ3/tools/zstd -O3 -DNDEBUG -std=gnu++17 -fPIC -fopenmp -o CMakeFiles/SZ3c.dir/src/sz3c.cpp.o -c /home/haofeng/sz3_no_pred/SZ3/tools/sz3c/src/sz3c.cpp",
+  "file": "/home/haofeng/sz3_no_pred/SZ3/tools/sz3c/src/sz3c.cpp",
+  "output": "tools/sz3c/CMakeFiles/SZ3c.dir/src/sz3c.cpp.o"
+}
+]
