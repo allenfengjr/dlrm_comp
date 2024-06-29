@@ -812,6 +812,12 @@ class DLRM_Net(nn.Module):
                 ly[i].data = torch.from_numpy(new_ly).data.to(ly_devices[i])
                 record_cr(ly_i_ratio, i)
         '''
+        if iter % 4096 == 0:
+            savepath = str(os.environ.get("DUMP_PATH", "/root/dlrm_comp/SC_ADAE_EMB"))
+            for i,e in enumerate(ly):
+                outputpath = f"{savepath}/EMB_{i}_iter_{int(iter/4096)}.bin"
+                narr = e.cpu().detach().numpy()
+                narr.tofile(outputpath)
         # interact features (dense and sparse)
         z = self.interact_features(x, ly)
         # print(z.detach().cpu().numpy())
