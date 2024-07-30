@@ -84,29 +84,25 @@ for table in range(NUM_TABLES):
 
 # Update your executable files to include placeholders for dynamic error bounds
 EXECUTABLES = {
-    "/N/u/haofeng/BigRed200/cusz-latest/build/cusz": "-z -i {filename} -t f32 -m r2r -e {error_bound} -l 2048x64x128 --report time",
-    "/N/u/haofeng/BigRed200/sz3": "-f -i {filename} -o tempdata.sz.out -2 128 32 -M REL {error_bound} -a",
-    "/home/haofeng/FZ-GPU/fz-gpu": "{filename} 128 32 1 {error_bound}",
-    "/N/u/haofeng/BigRed200/cusz-latest/build/example/bin_hf": "{filename} 2048 64 128 256",
-    "/N/u/haofeng/BigRed200/nvcomp/bin/benchmark_lz4_chunked": "-f {filename}",
-     "/home/haofeng/nvcomp_software/bin/benchmark_deflate_chunked": "-f {filename}",
-    "/N/u/haofeng/BigRed200//nvcomp/bin/benchmark_ans_chunked": "-f {filename}",
-    "/N/u/haofeng/BigRed200/ICS23-GPULZ/gpulz": "-i {filename}",
-    "/home/haofeng/qcat-1.3-install/bin/simSZ": "-f 63356 {error_bound} {quan_file} {unpred_file}"
+    "/root/cusz-latest/build/cusz": "-z -i {filename} -t f32 -m r2r -e {error_bound} -l 2048x64x128 --report time",
+    "/root/FZ-GPU/fz-gpu": "{filename} 128 32 1 {error_bound}",
+    "/root/cusz-latest/build/example/bin_hf": "{filename} 2048 64 128 256",
+    "/root/nvcomp/bin/benchmark_lz4_chunked": "-f {filename}",
+    "/root/nvcomp/bin/benchmark_deflate_chunked": "-f {filename}",
+    "/root/nvcomp/bin/benchmark_ans_chunked": "-f {filename}",
+    "/root/ICS23-GPULZ/gpulz": "-i {filename}",
 }
 
 
 LOG_FILES = {
     # Update or maintain log files corresponding to executables as necessary
-    "/N/u/haofeng/BigRed200/cusz-latest/build/cusz": "CMP_CHECK_cusz.log",
-    "/home/haofeng/sz3_no_pred/bin/sz3": "CMP_NO_PRED.log",
-    "/N/u/haofeng/BigRed200/ICS23-GPULZ/gpulz":"CMP_GPULZ.log",
-    "/home/haofeng/FZ-GPU/fz-gpu":"CMP_FZGPU.log",
-    "/home/haofeng/cusz-latest/build/example/bin_hf":"CMP_Huffman.log",
-    "/N/u/haofeng/BigRed200/nvcomp/bin/benchmark_lz4_chunked": "CMP_nvCOMP_LZ4.log",
-    "/home/haofeng/nvcomp_software/bin/benchmark_deflate_chunked": "CMP_nvCOMP_deflate.log",
-    "/home/haofeng/qcat-1.3-install/bin/simSZ": "CMP_simSZ.log",
-    "/N/u/haofeng/BigRed200//nvcomp/bin/benchmark_ans_chunked": "CMP_ANS.log"
+    "/root/cusz-latest/build/cusz": "CMP_CHECK_cusz.log",
+    "/root/ICS23-GPULZ/gpulz":"CMP_GPULZ.log",
+    "/root/FZ-GPU/fz-gpu":"CMP_FZGPU.log",
+    "/root/cusz-latest/build/example/bin_hf":"CMP_Huffman.log",
+    "/root/nvcomp/bin/benchmark_lz4_chunked": "CMP_nvCOMP_LZ4.log",
+    "/root/nvcomp/bin/benchmark_deflate_chunked": "CMP_nvCOMP_deflate.log",
+    "/root/nvcomp/bin/benchmark_ans_chunked": "CMP_ANS.log"
 }
 
 # Change loop order to compressor-EMB-iter

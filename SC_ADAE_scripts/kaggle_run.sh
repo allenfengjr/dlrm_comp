@@ -34,7 +34,10 @@ dlrm_pt_bin="python /root/dlrm_comp/dlrm_s_with_compress_quan.py"
 # example path
 # raw_data="./Kaggle/raw/train.txt"
 # processed_data="./Kaggle/raw/kaggleAdDisplayChallenge_processed.npz"
-raw_data=""
+
+# NOTE: Please put Criteo Kaggle dataset(including train.txt, test.txt) under `Kaggle/raw/` directory.
+
+raw_data="path_to_dataset/train.txt"
 processed_data=""
 
 echo "run pytorch ..."

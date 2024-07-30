@@ -2,6 +2,15 @@
 
 ## Step 1. Train DLRM with adaptive compression
 Running scripts are in `SC_ADAE_script`. Run `bash kaggle_run.sh` and `bash tb_run.sh` to train DLRM with adaptive compression on two dataset respectively.
+To download Criteo Dataset, run the following command.
+```bash
+wget https://go.criteo.net/criteo-research-kaggle-display-advertising-challenge-dataset.tar.gz
+```
+To train with a subset of dataset, please modify ```data-sub-sample-rate``` arguments, for example, apply this argument to only use 1\% of training data.
+
+```bash
+--data-sub-sample-rate=0.01
+```
 
 Here are some parameters you can tune for training.
 

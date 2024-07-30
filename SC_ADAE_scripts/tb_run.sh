@@ -17,8 +17,10 @@ dlrm_pt_bin="python /root/dlrm_comp/dlrm_s_with_compress_quan.py"
 # raw_data="./10M_processed/day"
 # processed_data="./10M_processed/terabyte_processed.npz"
 
-raw_data=""
-processed_data=""
+# NOTE: Please put Criteo Terabyte dataset(day_0, day_1,...,day_23) under a directory.
+
+raw_data="path_to_dataset/day"
+processed_data="path_to_dataset/terabyte_processed.npz"
 
 # set compression variables
 export SZ_PATH="/u/haofeng1/SZ3/lib64/"
