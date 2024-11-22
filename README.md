@@ -1,3 +1,5 @@
+Here is our slides on [SC24 talk.](https://github.com/allenfengjr/dlrm_comp/blob/main/DLRM-SC-slides.pptx)
+
 # Part 1: Lossy Compression in Training
 
 ## Step 1. Train DLRM with adaptive compression
